@@ -157,7 +157,10 @@ export default function BrandPage() {
     mode: 'onChange'
   });
 
-  const { handleSubmit, reset, formState: { isValid } } = methods;
+  const { handleSubmit, reset, formState: { isValid, errors } } = methods;
+  
+  // Debug form state
+  console.log('🔍 Form state:', { isValid, errors });
 
   // Load existing brand profile on mount
   useEffect(() => {
@@ -206,12 +209,22 @@ export default function BrandPage() {
   };
 
   const onSubmit = async (data: BrandProfile) => {
-    if (!organization) return;
+    console.log('🔥 onSubmit called with data:', data);
+    console.log('🔥 Organization:', organization);
+    console.log('🔥 Mode:', mode);
+    
+    if (!organization) {
+      console.error('❌ No organization found');
+      return;
+    }
 
     setIsLoading(true);
     try {
       const url = '/api/brand';
       const method = mode === 'create' ? 'POST' : 'PUT';
+      
+      console.log('🔥 Making API request:', { url, method });
+      console.log('🔥 Request body:', JSON.stringify(data, null, 2));
       
       const response = await fetch(url, {
         method,
@@ -221,17 +234,22 @@ export default function BrandPage() {
         body: JSON.stringify(data)
       });
 
+      console.log('🔥 API Response status:', response.status, response.statusText);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error('❌ API Error response:', error);
         throw new Error(error.error || 'Failed to save brand profile');
       }
 
       const result = await response.json();
+      console.log('🔥 API Success response:', result);
+      
       setBrandProfile(data);
       setMode('view');
       toast.success(mode === 'create' ? 'Brand profile created successfully!' : 'Brand profile updated successfully!');
     } catch (error) {
-      console.error('Error saving brand profile:', error);
+      console.error('❌ Error saving brand profile:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save brand profile');
     } finally {
       setIsLoading(false);
@@ -395,7 +413,12 @@ export default function BrandPage() {
             
             {currentStep === formSteps.length - 1 ? (
               <button
-                onClick={handleSubmit(onSubmit)}
+                onClick={(e) => {
+                  console.log('🔥 Save button clicked!');
+                  console.log('🔥 Current form state valid:', isValid);
+                  console.log('🔥 Is loading:', isLoading);
+                  handleSubmit(onSubmit)(e);
+                }}
                 disabled={isLoading}
                 className="inline-flex items-center px-8 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >

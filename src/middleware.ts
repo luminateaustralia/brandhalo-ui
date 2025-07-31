@@ -15,7 +15,8 @@ const isDashboardRoute = createRouteMatcher([
 // Define API routes that should be accessible
 const isApiRoute = createRouteMatcher([
   '/api/customers/create',
-  '/api/webhook(.*)'
+  '/api/webhook(.*)',
+  '/api/brand(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

@@ -1,6 +1,16 @@
 'use client';
 
 import React from 'react';
+import { 
+  BuildingOfficeIcon,
+  SparklesIcon,
+  FaceSmileIcon,
+  PaintBrushIcon,
+  UserGroupIcon,
+  ChartBarIcon,
+  ChatBubbleLeftRightIcon,
+  ShieldCheckIcon
+} from '@heroicons/react/24/outline';
 import { BrandProfile } from '@/types/brand';
 
 interface BrandProfileViewProps {
@@ -19,9 +29,24 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
     compliance
   } = brandProfile;
 
-  const ViewSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  const ViewSection = ({ 
+    title, 
+    children, 
+    icon: Icon 
+  }: { 
+    title: string; 
+    children: React.ReactNode; 
+    icon?: React.ComponentType<{ className?: string }>;
+  }) => (
     <div className="py-6 border-b border-gray-200 last:border-b-0">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
+      <div className="flex items-center mb-4">
+        {Icon && (
+          <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mr-3">
+            <Icon className="w-5 h-5 text-purple-600" />
+          </div>
+        )}
+        <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+      </div>
       <div className="space-y-4">
         {children}
       </div>
@@ -52,13 +77,14 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
     
     return (
       <div>
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1 text-sm text-gray-900">
-          <ul className="list-disc list-inside space-y-1">
-            {items.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
+        <dt className="text-sm font-medium text-gray-500 mb-3">{label}</dt>
+        <dd className="space-y-2">
+          {items.map((item, index) => (
+            <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+              <div className="flex-shrink-0 w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
+              <span className="text-sm text-gray-900 leading-relaxed">{item}</span>
+            </div>
+          ))}
         </dd>
       </div>
     );
@@ -69,17 +95,19 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
     
     return (
       <div>
-        <dt className="text-sm font-medium text-gray-500 mb-2">{label}</dt>
-        <dd className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <dt className="text-sm font-medium text-gray-500 mb-3">{label}</dt>
+        <dd className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {colors.map((color, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-md border border-gray-300"
-                style={{ backgroundColor: color.hex }}
-              />
-              <div>
-                <div className="text-sm font-medium text-gray-900">{color.name}</div>
-                <div className="text-xs text-gray-500">{color.hex}</div>
+            <div key={index} className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors duration-200">
+              <div className="flex items-center space-x-3">
+                <div 
+                  className="w-12 h-12 rounded-lg border-2 border-white shadow-sm"
+                  style={{ backgroundColor: color.hex }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 truncate">{color.name}</div>
+                  <div className="text-xs text-gray-500 font-mono">{color.hex.toUpperCase()}</div>
+                </div>
               </div>
             </div>
           ))}
@@ -89,8 +117,9 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
   };
 
   return (
-    <div className="p-6 space-y-0">
-      <ViewSection title="Company Information">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="p-6 space-y-0">
+      <ViewSection title="Company Information" icon={BuildingOfficeIcon}>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ViewField label="Company Name" value={companyInfo.companyName} />
           <ViewField label="Industry" value={companyInfo.industry} />
@@ -101,7 +130,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Essence">
+      <ViewSection title="Brand Essence" icon={SparklesIcon}>
         <dl className="space-y-4">
           <ViewField label="Tagline" value={brandEssence.tagline} />
           <ViewField label="Brand Purpose" value={brandEssence.brandPurpose} />
@@ -114,7 +143,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Personality">
+      <ViewSection title="Brand Personality" icon={FaceSmileIcon}>
         <dl className="space-y-4">
           <ViewField label="Brand Archetype" value={brandPersonality.archetype} />
           <ViewList label="Brand Traits" items={brandPersonality.traits} />
@@ -125,7 +154,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Visuals">
+      <ViewSection title="Brand Visuals" icon={PaintBrushIcon}>
         <div className="space-y-6">
           <ViewField label="Logo URL" value={brandVisuals.logoURL} link />
           <ColorSwatch colors={brandVisuals.primaryColors} label="Primary Colors" />
@@ -134,12 +163,17 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
           )}
           {brandVisuals.typography?.length > 0 && (
             <div>
-              <dt className="text-sm font-medium text-gray-500 mb-2">Typography</dt>
-              <dd className="space-y-2">
+              <dt className="text-sm font-medium text-gray-500 mb-3">Typography</dt>
+              <dd className="space-y-3">
                 {brandVisuals.typography.map((font, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span className="font-medium">{font.name}</span>
-                    <span className="text-sm text-gray-500">{font.usage}</span>
+                  <div key={index} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                      <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                        <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                        <span className="font-semibold text-gray-900">{font.name}</span>
+                      </div>
+                      <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">{font.usage}</span>
+                    </div>
                   </div>
                 ))}
               </dd>
@@ -149,12 +183,17 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </div>
       </ViewSection>
 
-      <ViewSection title="Target Audience">
+      <ViewSection title="Target Audience" icon={UserGroupIcon}>
         <div className="space-y-6">
           {targetAudience.map((segment, index) => (
-            <div key={index} className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-3">{segment.name}</h4>
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div key={index} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-6 hover:shadow-md transition-all duration-200">
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                  <span className="text-white font-semibold text-sm">{index + 1}</span>
+                </div>
+                <h4 className="font-semibold text-gray-900 text-lg">{segment.name}</h4>
+              </div>
+              <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <ViewField label="Description" value={segment.description} />
                 <ViewField label="Key Needs" value={segment.keyNeeds} />
                 <ViewField label="Demographics" value={segment.demographics} />
@@ -164,38 +203,43 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </div>
       </ViewSection>
 
-      <ViewSection title="Competitive Landscape">
-        <div className="space-y-4">
+      <ViewSection title="Competitive Landscape" icon={ChartBarIcon}>
+        <div className="space-y-6">
           {competitiveLandscape.primaryCompetitors?.length > 0 && (
             <div>
-              <dt className="text-sm font-medium text-gray-500 mb-3">Primary Competitors</dt>
-              <dd className="space-y-3">
+              <dt className="text-sm font-medium text-gray-500 mb-4">Primary Competitors</dt>
+              <dd className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {competitiveLandscape.primaryCompetitors.map((competitor, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded">
-                    <div className="flex justify-between items-start mb-2">
-                      <h5 className="font-medium text-gray-900">{competitor.name}</h5>
+                  <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-purple-200 transition-all duration-200">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <h5 className="font-semibold text-gray-900">{competitor.name}</h5>
+                      </div>
                       {competitor.website && (
                         <a 
                           href={competitor.website} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-sm text-purple-600 hover:text-purple-500"
+                          className="text-sm text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-full transition-colors duration-200"
                         >
                           Visit
                         </a>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">{competitor.positioning}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{competitor.positioning}</p>
                   </div>
                 ))}
               </dd>
             </div>
           )}
-          <ViewField label="Key Differentiators" value={competitiveLandscape.differentiators} />
+          <div className="pt-4">
+            <ViewField label="Key Differentiators" value={competitiveLandscape.differentiators} />
+          </div>
         </div>
       </ViewSection>
 
-      <ViewSection title="Messaging">
+      <ViewSection title="Messaging" icon={ChatBubbleLeftRightIcon}>
         <dl className="space-y-4">
           <ViewField label="Elevator Pitch" value={messaging.elevatorPitch} />
           <ViewList label="Key Messages" items={messaging.keyMessages} />
@@ -205,7 +249,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Compliance & Legal">
+      <ViewSection title="Compliance & Legal" icon={ShieldCheckIcon}>
         <dl className="space-y-4">
           <ViewField label="Brand Guidelines URL" value={compliance.brandGuidelinesURL} link />
           <ViewField label="Trademark Status" value={compliance.trademarkStatus} />
@@ -214,6 +258,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
           )}
         </dl>
       </ViewSection>
+      </div>
     </div>
   );
 }

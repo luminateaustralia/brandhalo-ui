@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { 
   UserGroupIcon, 
@@ -8,8 +8,11 @@ import {
   HeartIcon, 
   ShoppingBagIcon,
   AcademicCapIcon,
-  HomeIcon
+  HomeIcon,
+  DocumentArrowDownIcon,
+  ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
+import { exportPersonaToPDF, copyPersonaToClipboard } from '@/utils/personaExport';
 
 interface Persona {
   id: string;
@@ -36,7 +39,7 @@ const personas: Persona[] = [
     occupation: 'Marketing Manager',
     location: 'Sydney, Australia',
     income: '$85,000 - $110,000',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=400&h=400&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
     description: 'Tech-savvy professional who values efficiency and quality. Early adopter of new products and services.',
     goals: [
       'Advance her career in marketing',
@@ -188,8 +191,45 @@ const personas: Persona[] = [
 ];
 
 export default function PersonasPage() {
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleExportPDF = async (persona: Persona) => {
+    try {
+      await exportPersonaToPDF(persona);
+      setNotification({ message: `${persona.name}'s persona exported to PDF successfully!`, type: 'success' });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      setNotification({ message: 'Failed to export PDF. Please try again.', type: 'error' });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleCopyJSON = async (persona: Persona) => {
+    try {
+      await copyPersonaToClipboard(persona);
+      setNotification({ message: `${persona.name}'s persona JSON copied to clipboard!`, type: 'success' });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      setNotification({ message: 'Failed to copy to clipboard. Please try again.', type: 'error' });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
   return (
     <div className="w-full">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+          notification.type === 'success' 
+            ? 'bg-green-100 border border-green-200 text-green-800' 
+            : 'bg-red-100 border border-red-200 text-red-800'
+        }`}>
+          {notification.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -330,9 +370,27 @@ export default function PersonasPage() {
                 </div>
 
                 {/* Buying Behavior */}
-                <div>
+                <div className="mb-4">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Buying Behavior</h4>
                   <p className="text-xs text-gray-600">{persona.buyingBehavior}</p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => handleExportPDF(persona)}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                  >
+                    <DocumentArrowDownIcon className="w-4 h-4" />
+                    Export PDF
+                  </button>
+                  <button
+                    onClick={() => handleCopyJSON(persona)}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <ClipboardDocumentIcon className="w-4 h-4" />
+                    Copy AI Persona
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -16,15 +15,16 @@ import {
   Squares2X2Icon,
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 export default function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, setIsCollapsed } = useSidebar();
 
   return (
     <div 
       className={`${
         isCollapsed ? 'w-16' : 'w-64'
-      } min-h-screen bg-gray-50 text-gray-800 transition-all duration-300 ease-in-out flex flex-col border-r border-gray-200`}
+      } h-screen bg-gray-50 text-gray-800 transition-all duration-300 ease-in-out flex flex-col border-r border-gray-200 fixed left-0 top-0 z-20`}
     >
       {/* Logo Section */}
       <div className="p-4 flex items-center">
@@ -54,7 +54,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 pt-4 flex flex-col">
+      <nav className="flex-1 pt-4 flex flex-col overflow-y-auto">
         {/* Top Section */}
         <div>
           <Link

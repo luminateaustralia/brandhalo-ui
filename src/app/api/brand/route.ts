@@ -14,8 +14,18 @@ initDatabase();
 
 // GET - Retrieve brand profile for the current organization
 export async function GET() {
+  console.log('🔍 Brand API GET route called');
   try {
-    const { orgId } = await auth();
+    let orgId = null;
+    try {
+      const authResult = await auth();
+      orgId = authResult?.orgId;
+      console.log('🔍 Auth result:', { orgId });
+    } catch (error) {
+      console.error('🔍 Auth error:', error);
+      // Don't use fallback since we can see Clerk is working properly
+      throw error;
+    }
     
     if (!orgId) {
       return NextResponse.json({ error: 'Organization ID required' }, { status: 401 });
@@ -36,8 +46,19 @@ export async function GET() {
 
 // POST - Create new brand profile
 export async function POST(request: NextRequest) {
+  console.log('🔍 Brand API POST route called');
   try {
-    const { orgId, userId } = await auth();
+    let orgId = null;
+    let userId = null;
+    try {
+      const authResult = await auth();
+      orgId = authResult?.orgId;
+      userId = authResult?.userId;
+      console.log('🔍 POST Auth result:', { orgId, userId });
+    } catch (error) {
+      console.error('🔍 POST Auth error:', error);
+      throw error;
+    }
     
     if (!orgId || !userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
@@ -67,8 +88,19 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update existing brand profile
 export async function PUT(request: NextRequest) {
+  console.log('🔍 Brand API PUT route called');
   try {
-    const { orgId, userId } = await auth();
+    let orgId = null;
+    let userId = null;
+    try {
+      const authResult = await auth();
+      orgId = authResult?.orgId;
+      userId = authResult?.userId;
+      console.log('🔍 PUT Auth result:', { orgId, userId });
+    } catch (error) {
+      console.error('🔍 PUT Auth error:', error);
+      throw error;
+    }
     
     if (!orgId || !userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

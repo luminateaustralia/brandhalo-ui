@@ -3,6 +3,7 @@
 import { UserButton, useOrganization, OrganizationSwitcher } from "@clerk/nextjs";
 import Sidebar from '@/components/Sidebar';
 import SearchBox from '@/components/SearchBox';
+import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 
 export default function DashboardLayout({
   children,
@@ -11,12 +12,30 @@ export default function DashboardLayout({
 }) {
   const { organization, isLoaded } = useOrganization();
 
+  return (
+    <SidebarProvider>
+      <DashboardContent organization={organization} isLoaded={isLoaded}>
+        {children}
+      </DashboardContent>
+    </SidebarProvider>
+  );
+}
 
+function DashboardContent({ 
+  children, 
+  organization, 
+  isLoaded 
+}: {
+  children: React.ReactNode;
+  organization: any;
+  isLoaded: boolean;
+}) {
+  const { isCollapsed } = useSidebar();
 
   return (
-    <div className="flex h-screen">
+    <div className="h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className={`flex flex-col min-h-screen transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
         <header className="bg-white shadow-sm h-16 flex items-center px-8 z-10 flex-shrink-0">
           <div className="flex-1 max-w-xl mr-12">
             <SearchBox 
@@ -50,7 +69,7 @@ export default function DashboardLayout({
             <UserButton afterSignOutUrl="/" />
           </div>
         </header>
-        <main className="flex-1 p-8 min-h-0">{children}</main>
+        <main className="flex-1 p-8 min-h-0 overflow-auto">{children}</main>
       </div>
     </div>
   );

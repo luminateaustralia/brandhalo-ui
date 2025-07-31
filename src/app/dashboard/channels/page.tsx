@@ -443,26 +443,6 @@ export default function ChannelsPage() {
           );
         })}
       </div>
-
-      {/* Bottom Action */}
-      <div className="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Schedule Regular Brand Audits
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Set up automated monitoring to ensure consistent brand compliance across all channels.
-          </p>
-          <div className="flex justify-center space-x-3">
-            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-              Setup Monitoring
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-              Export Report
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -119,7 +119,7 @@ export default function Sidebar() {
             {!isCollapsed && <span className="ml-3">Channels</span>}
           </Link>
           <Link
-            href="/compliance"
+            href="/dashboard/compliance"
             className={`flex items-center ${
               isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
             } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}

@@ -11,7 +11,11 @@ import {
   CheckIcon,
   EyeIcon,
   PencilIcon,
-  PlusIcon
+  PlusIcon,
+  DocumentArrowDownIcon,
+  ClipboardDocumentIcon,
+  TrashIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
 import { BrandProfile, FormMode, FormStep } from '@/types/brand';
@@ -27,6 +31,7 @@ import CompetitiveLandscapeStep from '@/components/brand/CompetitiveLandscapeSte
 import MessagingStep from '@/components/brand/MessagingStep';
 import ComplianceStep from '@/components/brand/ComplianceStep';
 import BrandProfileView from '@/components/brand/BrandProfileView';
+import { exportBrandToPDF, copyBrandToClipboard } from '@/utils/brandExport';
 
 // Default empty brand profile
 const getDefaultBrandProfile = (): BrandProfile => ({
@@ -150,6 +155,8 @@ export default function BrandPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
@@ -168,6 +175,23 @@ export default function BrandPage() {
       loadBrandProfile();
     }
   }, [isLoaded, organization]);
+
+  // Handle escape key to close delete dialog
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showDeleteDialog) {
+        setShowDeleteDialog(false);
+      }
+    };
+
+    if (showDeleteDialog) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showDeleteDialog]);
 
   const loadBrandProfile = async () => {
     if (!organization) return;
@@ -280,6 +304,81 @@ export default function BrandPage() {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!brandProfile) return;
+    
+    try {
+      await exportBrandToPDF(brandProfile);
+      setNotification({ 
+        message: `Brand profile exported to PDF successfully!`, 
+        type: 'success' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      setNotification({ 
+        message: 'Failed to export PDF. Please try again.', 
+        type: 'error' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleCopyJSON = async () => {
+    if (!brandProfile) return;
+    
+    try {
+      await copyBrandToClipboard(brandProfile);
+      setNotification({ 
+        message: `Brand profile JSON copied to clipboard!`, 
+        type: 'success' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      setNotification({ 
+        message: 'Failed to copy to clipboard. Please try again.', 
+        type: 'error' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!organization) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/brand', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete brand profile');
+      }
+
+      // Reset state after successful deletion
+      setBrandProfile(null);
+      setMode('create');
+      setCurrentStep(0);
+      setShowDeleteDialog(false);
+      
+      // Reset form to default values
+      reset(getInitialBrandProfile());
+      
+      toast.success('Brand profile deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting brand profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete brand profile');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const renderStepContent = () => {
     const stepId = formSteps[currentStep].id;
     
@@ -326,6 +425,17 @@ export default function BrandPage() {
   if (mode === 'view' && brandProfile) {
     return (
       <div className="w-full">
+        {/* Notification */}
+        {notification && (
+          <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+            notification.type === 'success' 
+              ? 'bg-green-100 border border-green-200 text-green-800' 
+              : 'bg-red-100 border border-red-200 text-red-800'
+          }`}>
+            {notification.message}
+          </div>
+        )}
+
         <div>
           <div className="mb-6">
             <div className="flex items-center justify-between">
@@ -333,17 +443,96 @@ export default function BrandPage() {
                 <h1 className="text-2xl font-bold text-gray-900">Brand Profile</h1>
                 <p className="text-gray-600 mt-1">Complete brand information for {organization.name}</p>
               </div>
-              <button
-                onClick={handleEdit}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              >
-                <PencilIcon className="w-4 h-4 mr-2" />
-                Edit Profile
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportPDF}
+                  className="inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                >
+                  <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
+                  Export PDF
+                </button>
+                <button
+                  onClick={handleCopyJSON}
+                  className="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
+                  Copy AI Brand
+                </button>
+                <button
+                  onClick={handleEdit}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                >
+                  <PencilIcon className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                >
+                  <TrashIcon className="w-4 h-4 mr-2" />
+                  Delete Profile
+                </button>
+              </div>
             </div>
           </div>
           <BrandProfileView brandProfile={brandProfile} />
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteDialog && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowDeleteDialog(false)}
+          >
+            <div 
+              className="bg-white rounded-lg max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Delete Brand Profile</h3>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-gray-600">
+                  Are you sure you want to delete this brand profile? This action cannot be undone. 
+                  All brand information, including company details, brand essence, visuals, and messaging will be permanently removed.
+                </p>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  disabled={isLoading}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isLoading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <TrashIcon className="w-4 h-4 mr-2" />
+                      Delete Profile
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

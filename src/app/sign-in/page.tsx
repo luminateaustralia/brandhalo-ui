@@ -6,9 +6,11 @@ export default function SignInPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-full border-4 border-blue-500 flex items-center justify-center">
-              <div className="w-16 h-16 bg-blue-500 rounded-full" />
-            </div>
+            <img 
+              src="/Logo.svg" 
+              alt="BrandHalo" 
+              className="h-12 w-auto"
+            />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to BrandHalo

@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { UserIcon } from '@heroicons/react/24/outline';
-import { signOut } from '@/auth';
+import { useClerk } from '@clerk/nextjs';
 
 interface UserMenuProps {
   user?: {
@@ -13,8 +13,10 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ user }: UserMenuProps) {
+  const { signOut } = useClerk();
+
   const handleSignOut = () => {
-    signOut({ redirectTo: '/login' });
+    signOut({ redirectUrl: '/' });
   };
 
   return (

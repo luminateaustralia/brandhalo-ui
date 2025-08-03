@@ -48,13 +48,23 @@ export interface ActiveScan {
 // API Client
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
+// Type definition for window with Clerk
+interface WindowWithClerk extends Window {
+  Clerk?: {
+    session?: {
+      getToken?: () => Promise<string>;
+    };
+  };
+}
+
 // Helper to get headers with authentication
-const getHeaders = async () => {
+const getHeaders = async (): Promise<Record<string, string>> => {
   // For client components, use Clerk's auth token
   if (typeof window !== 'undefined') {
     try {
       // Use Clerk's auth token from the window object if available
-      const clerkToken = (window as any).Clerk?.session?.getToken?.();
+      const windowWithClerk = window as WindowWithClerk;
+      const clerkToken = windowWithClerk.Clerk?.session?.getToken?.();
       if (clerkToken) {
         const token = await clerkToken;
         return {

@@ -14,7 +14,8 @@ export default function BrandPersonalityStep() {
   const { fields: traitFields, append: appendTrait, remove: removeTrait } = useFieldArray({
     control,
     name: 'brandPersonality.traits'
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 
   const brandArchetypes = [
     'The Innocent',

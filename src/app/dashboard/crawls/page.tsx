@@ -73,23 +73,7 @@ export default function ScansPage() {
     ? Math.round((completedScansCount / scans.length) * 100) 
     : 0;
 
-  // Fetch scans on component mount
-  useEffect(() => {
-    fetchScans();
-    
-    // Set up polling for active scans
-    fetchActiveScans();
-    
-    // Poll for active scans every 10 seconds
-    intervalRef.current = setInterval(fetchActiveScans, 10000);
-    
-    // Clean up interval on component unmount
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [fetchScans]);
+  // This useEffect will be moved after fetchScans declaration
 
   // Fetch active scans
   const fetchActiveScans = async () => {
@@ -115,7 +99,7 @@ export default function ScansPage() {
       // Use the API to fetch scans
       const data = await api.scans.getAllScans();
       console.log('API scan data:', data); // Log the raw data from API
-      setScans(data.map((scan: {
+      setScans((data as {
         scanId: string;
         websiteId?: string;
         status?: string;
@@ -124,7 +108,7 @@ export default function ScansPage() {
         dateStarted?: string;
         customerId?: string;
         crawltimestamp: string;
-      }) => {
+      }[]).map((scan) => {
         console.log('Processing scan:', scan); // Debug log
         console.log('crawltimestamp:', scan.crawltimestamp); // Log the timestamp specifically
         return {
@@ -151,6 +135,24 @@ export default function ScansPage() {
       setIsRefreshing(false);
     }
   }, []);
+
+  // Fetch scans on component mount
+  useEffect(() => {
+    fetchScans();
+    
+    // Set up polling for active scans
+    fetchActiveScans();
+    
+    // Poll for active scans every 10 seconds
+    intervalRef.current = setInterval(fetchActiveScans, 10000);
+    
+    // Clean up interval on component unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [fetchScans]);
 
   // Format date for display
   const formatDate = (dateString: string) => {

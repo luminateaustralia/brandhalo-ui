@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useUser, useOrganization, CreateOrganization, OrganizationList } from '@clerk/nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import Image from 'next/image';
 
-export default function OnboardingPage() {
+// Component to handle search params with Suspense
+function OnboardingContent() {
   const { isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function OnboardingPage() {
           clerk_organisation_id: organization.id,
           brands: [
             {
+              id: `brand-${Date.now()}`, // Generate a unique ID
               name: `${organization.name || 'My Organization'} Brand`,
               url: `https://${organization.name ? organization.name.toLowerCase().replace(/[^a-z0-9]/g, '-') : 'my-organization'}.com`
             }
@@ -51,7 +53,7 @@ export default function OnboardingPage() {
             setError('Failed to create customer. Please try again or contact support.');
           }
           
-          if (apiError.status === 409) {
+          if (typeof apiError === 'object' && apiError !== null && 'status' in apiError && (apiError as { status: number }).status === 409) {
             console.log('Organization already exists in database, redirecting to dashboard');
             router.push('/dashboard');
           }
@@ -240,5 +242,18 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component that wraps OnboardingContent in Suspense
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8777E7]"></div>
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   );
 } 

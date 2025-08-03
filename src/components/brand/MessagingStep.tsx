@@ -13,7 +13,8 @@ export default function MessagingStep() {
   const { fields: messageFields, append: appendMessage, remove: removeMessage } = useFieldArray({
     control,
     name: 'messaging.keyMessages'
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 
   return (
     <FormSection

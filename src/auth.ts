@@ -18,11 +18,7 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    apiKey?: string;
-  }
-}
+
 
 // Define fallback secret (not recommended for production)
 const AUTH_SECRET = process.env.AUTH_SECRET || "ZmdQFvLiXx2N5ODidoaKpOSehhUN7HoDIgV76tvtDjM=";

@@ -168,13 +168,6 @@ export default function BrandPage() {
   // Debug form state
   console.log('🔍 Form state:', { isValid, errors });
 
-  // Load existing brand profile on mount
-  useEffect(() => {
-    if (isLoaded && organization) {
-      loadBrandProfile();
-    }
-  }, [isLoaded, organization, loadBrandProfile]);
-
   // Handle escape key to close delete dialog
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -230,6 +223,13 @@ export default function BrandPage() {
       setIsLoading(false);
     }
   }, [organization, reset]);
+
+  // Load existing brand profile on mount
+  useEffect(() => {
+    if (isLoaded && organization) {
+      loadBrandProfile();
+    }
+  }, [isLoaded, organization, loadBrandProfile]);
 
   const onSubmit = async (data: BrandProfile) => {
     console.log('🔥 onSubmit called with data:', data);

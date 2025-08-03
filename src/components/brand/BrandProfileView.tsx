@@ -138,7 +138,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
             <ViewField label="Mission Statement" value={brandEssence.mission} />
             <ViewField label="Vision Statement" value={brandEssence.vision} />
           </div>
-          <ViewList label="Core Values" items={brandEssence.values} />
+          <ViewList label="Core Values" items={brandEssence.values.filter((value): value is string => value !== undefined)} />
           <ViewField label="Brand Promise" value={brandEssence.brandPromise} />
         </dl>
       </ViewSection>
@@ -146,7 +146,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
       <ViewSection title="Brand Personality" icon={FaceSmileIcon}>
         <dl className="space-y-4">
           <ViewField label="Brand Archetype" value={brandPersonality.archetype} />
-          <ViewList label="Brand Traits" items={brandPersonality.traits} />
+          <ViewList label="Brand Traits" items={brandPersonality.traits.filter((trait): trait is string => trait !== undefined)} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ViewField label="Primary Voice & Tone" value={brandPersonality.voiceTone.primaryTone} />
             <ViewField label="Secondary Voice & Tone" value={brandPersonality.voiceTone.secondaryTone} />
@@ -157,9 +157,19 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
       <ViewSection title="Brand Visuals" icon={PaintBrushIcon}>
         <div className="space-y-6">
           <ViewField label="Logo URL" value={brandVisuals.logoURL} link />
-          <ColorSwatch colors={brandVisuals.primaryColors} label="Primary Colors" />
+          <ColorSwatch 
+            colors={brandVisuals.primaryColors.filter((color): color is { name: string; hex: string } => 
+              color.name !== undefined && color.hex !== undefined
+            )} 
+            label="Primary Colors" 
+          />
           {brandVisuals.secondaryColors?.length > 0 && (
-            <ColorSwatch colors={brandVisuals.secondaryColors} label="Secondary Colors" />
+            <ColorSwatch 
+              colors={brandVisuals.secondaryColors.filter((color): color is { name: string; hex: string } => 
+                color.name !== undefined && color.hex !== undefined
+              )} 
+              label="Secondary Colors" 
+            />
           )}
           {brandVisuals.typography?.length > 0 && (
             <div>
@@ -242,7 +252,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
       <ViewSection title="Messaging" icon={ChatBubbleLeftRightIcon}>
         <dl className="space-y-4">
           <ViewField label="Elevator Pitch" value={messaging.elevatorPitch} />
-          <ViewList label="Key Messages" items={messaging.keyMessages} />
+          <ViewList label="Key Messages" items={messaging.keyMessages.filter((message): message is string => message !== undefined)} />
           {messaging.doNotSay && (
             <ViewField label="Words/Phrases to Avoid" value={messaging.doNotSay} />
           )}

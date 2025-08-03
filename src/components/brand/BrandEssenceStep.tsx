@@ -14,7 +14,8 @@ export default function BrandEssenceStep() {
   const { fields: valueFields, append: appendValue, remove: removeValue } = useFieldArray({
     control,
     name: 'brandEssence.values'
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 
   return (
     <FormSection

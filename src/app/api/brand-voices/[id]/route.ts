@@ -10,9 +10,10 @@ import { BrandVoiceFormData } from '@/types/brandVoice';
 // PUT - Update existing brand voice
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('🔍 Brand Voice API PUT route called for ID:', params.id);
+  const { id } = await params;
+  console.log('🔍 Brand Voice API PUT route called for ID:', id);
   try {
     // Ensure database is initialized
     await initDatabase();
@@ -43,11 +44,11 @@ export async function PUT(
     // Add updated timestamp
     const completeVoiceData = {
       ...voiceData,
-      id: params.id,
+      id: id,
       updatedAt: new Date().toISOString()
     };
 
-    const result = await updateBrandVoice(params.id, completeVoiceData);
+    const result = await updateBrandVoice(id, completeVoiceData);
     
     return NextResponse.json(result);
   } catch (error) {
@@ -59,9 +60,10 @@ export async function PUT(
 // DELETE - Delete brand voice
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('🔍 Brand Voice API DELETE route called for ID:', params.id);
+  const { id } = await params;
+  console.log('🔍 Brand Voice API DELETE route called for ID:', id);
   try {
     // Ensure database is initialized
     await initDatabase();
@@ -82,7 +84,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const result = await deleteBrandVoice(params.id);
+    const result = await deleteBrandVoice(id);
     
     return NextResponse.json(result);
   } catch (error) {

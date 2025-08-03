@@ -136,7 +136,7 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
     y += 5;
     pdf.setFontSize(10);
     brandProfile.brandEssence.values.forEach((value) => {
-      if (value.trim()) {
+      if (value && value.trim()) {
         y = checkNewPage(10);
         pdf.setTextColor(0, 0, 0);
         pdf.text(`• ${value}`, margin + 5, y);
@@ -170,7 +170,7 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
     y += 5;
     pdf.setFontSize(10);
     brandProfile.brandPersonality.traits.forEach((trait) => {
-      if (trait.trim()) {
+      if (trait && trait.trim()) {
         y = checkNewPage(10);
         pdf.setTextColor(0, 0, 0);
         pdf.text(`• ${trait}`, margin + 5, y);
@@ -202,7 +202,7 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
     y += 10;
 
     brandProfile.targetAudience.forEach((audience) => {
-      if (audience.name.trim()) {
+      if (audience.name && audience.name.trim()) {
         y = checkNewPage(20);
         pdf.setFontSize(12);
         pdf.setTextColor(0, 0, 0);
@@ -244,7 +244,7 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
     y += 5;
     pdf.setFontSize(10);
     brandProfile.messaging.keyMessages.forEach((message) => {
-      if (message.trim()) {
+      if (message && message.trim()) {
         y = checkNewPage(10);
         pdf.setTextColor(0, 0, 0);
         pdf.text(`• ${message}`, margin + 5, y);

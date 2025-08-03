@@ -31,7 +31,6 @@ export default function OrganizationSetupPage() {
             },
           }}
           afterCreateOrganizationUrl="/dashboard"
-          afterJoinOrganizationUrl="/dashboard"
         />
       </div>
     </div>

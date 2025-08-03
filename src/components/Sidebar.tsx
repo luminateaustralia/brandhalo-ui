@@ -13,7 +13,9 @@ import {
   ShieldCheckIcon,
   Cog6ToothIcon,
   Squares2X2Icon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  ChartBarIcon,
+  SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
 import { useSidebar } from '@/contexts/SidebarContext';
 
@@ -98,7 +100,7 @@ export default function Sidebar() {
             } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
           >
             <StarIcon className="w-5 h-5" />
-            {!isCollapsed && <span className="ml-3">Brand</span>}
+            {!isCollapsed && <span className="ml-3">Brand Profiles</span>}
           </Link>
           <Link
             href="/dashboard/personas"
@@ -107,7 +109,16 @@ export default function Sidebar() {
             } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
           >
             <UserGroupIcon className="w-5 h-5" />
-            {!isCollapsed && <span className="ml-3">Personas</span>}
+            {!isCollapsed && <span className="ml-3">Brand Personas</span>}
+          </Link>
+          <Link
+            href="/dashboard/brand-voices"
+            className={`flex items-center ${
+              isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
+            } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
+          >
+            <SpeakerWaveIcon className="w-5 h-5" />
+            {!isCollapsed && <span className="ml-3">Brand Voices</span>}
           </Link>
           <Link
             href="/dashboard/channels"
@@ -117,6 +128,15 @@ export default function Sidebar() {
           >
             <GlobeAltIcon className="w-5 h-5" />
             {!isCollapsed && <span className="ml-3">Channels</span>}
+          </Link>
+          <Link
+            href="/dashboard/analytics"
+            className={`flex items-center ${
+              isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
+            } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
+          >
+            <ChartBarIcon className="w-5 h-5" />
+            {!isCollapsed && <span className="ml-3">Analytics</span>}
           </Link>
           <Link
             href="/dashboard/compliance"

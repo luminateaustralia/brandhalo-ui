@@ -27,7 +27,7 @@ function DashboardContent({
   isLoaded 
 }: {
   children: React.ReactNode;
-  organization: any;
+  organization: ReturnType<typeof useOrganization>['organization'];
   isLoaded: boolean;
 }) {
   const { isCollapsed } = useSidebar();

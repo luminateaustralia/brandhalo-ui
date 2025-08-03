@@ -3,14 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ApiProvider } from '@/contexts/ApiContext';
 import { Providers } from '@/components/Providers';
 import { 
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-  OrganizationSwitcher,
-  CreateOrganization
+  ClerkProvider
 } from '@clerk/nextjs';
 
 import "./globals.css";

@@ -1,6 +1,7 @@
 'use client';
 
 import { useOrganization } from '@clerk/nextjs';
+import Image from 'next/image';
 
 export default function OrganizationPage() {
   const { organization, isLoaded } = useOrganization();
@@ -32,9 +33,11 @@ export default function OrganizationPage() {
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <div className="flex items-center mb-4">
           {organization.imageUrl && (
-            <img 
+            <Image 
               src={organization.imageUrl} 
               alt={organization.name || 'Organization logo'} 
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-full mr-4"
             />
           )}

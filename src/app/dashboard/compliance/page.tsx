@@ -190,7 +190,7 @@ export default function CompliancePage() {
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Other Compliance Requirements</h2>
-          <p className="text-sm text-gray-500 mt-1">Track your organization's compliance status across regulatory and operational areas</p>
+          <p className="text-sm text-gray-500 mt-1">Track your organization&apos;s compliance status across regulatory and operational areas</p>
         </div>
         
         <div className="divide-y divide-gray-200">

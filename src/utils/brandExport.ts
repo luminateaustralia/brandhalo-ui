@@ -271,6 +271,23 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
   pdf.save(fileName);
 };
 
+// Persona interface for type safety
+export interface PersonaData {
+  id: string;
+  name: string;
+  age: number;
+  occupation: string;
+  location: string;
+  income: string;
+  image: string;
+  description: string;
+  goals: string[];
+  painPoints: string[];
+  preferredChannels: string[];
+  buyingBehavior: string;
+  color: string;
+}
+
 export const copyBrandToClipboard = async (brandProfile: BrandProfile) => {
   // Create a clean JSON object without React components and functions
   const cleanBrandProfile = {
@@ -306,6 +323,77 @@ export const copyBrandToClipboard = async (brandProfile: BrandProfile) => {
     competitiveLandscape: brandProfile.competitiveLandscape,
     messaging: brandProfile.messaging,
     compliance: brandProfile.compliance
+  };
+
+  const jsonString = JSON.stringify(cleanBrandProfile, null, 2);
+  
+  try {
+    await navigator.clipboard.writeText(jsonString);
+    return true;
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = jsonString;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return true;
+  }
+};
+
+export const copyBrandWithPersonasToClipboard = async (brandProfile: BrandProfile, personas: PersonaData[]) => {
+  // Create a clean JSON object without React components and functions
+  const cleanBrandProfile = {
+    companyInfo: {
+      companyName: brandProfile.companyInfo.companyName,
+      industry: brandProfile.companyInfo.industry,
+      website: brandProfile.companyInfo.website,
+      country: brandProfile.companyInfo.country,
+      yearFounded: brandProfile.companyInfo.yearFounded,
+      size: brandProfile.companyInfo.size
+    },
+    brandEssence: {
+      tagline: brandProfile.brandEssence.tagline,
+      brandPurpose: brandProfile.brandEssence.brandPurpose,
+      mission: brandProfile.brandEssence.mission,
+      vision: brandProfile.brandEssence.vision,
+      values: brandProfile.brandEssence.values,
+      brandPromise: brandProfile.brandEssence.brandPromise
+    },
+    brandPersonality: {
+      archetype: brandProfile.brandPersonality.archetype,
+      traits: brandProfile.brandPersonality.traits,
+      voiceTone: brandProfile.brandPersonality.voiceTone
+    },
+    brandVisuals: {
+      logoURL: brandProfile.brandVisuals.logoURL,
+      primaryColors: brandProfile.brandVisuals.primaryColors,
+      secondaryColors: brandProfile.brandVisuals.secondaryColors,
+      typography: brandProfile.brandVisuals.typography,
+      imageStyleDescription: brandProfile.brandVisuals.imageStyleDescription
+    },
+    targetAudience: brandProfile.targetAudience,
+    competitiveLandscape: brandProfile.competitiveLandscape,
+    messaging: brandProfile.messaging,
+    compliance: brandProfile.compliance,
+    // Add personas array
+    personas: personas.map(persona => ({
+      id: persona.id,
+      name: persona.name,
+      age: persona.age,
+      occupation: persona.occupation,
+      location: persona.location,
+      income: persona.income,
+      image: persona.image,
+      description: persona.description,
+      goals: persona.goals,
+      painPoints: persona.painPoints,
+      preferredChannels: persona.preferredChannels,
+      buyingBehavior: persona.buyingBehavior,
+      color: persona.color
+    }))
   };
 
   const jsonString = JSON.stringify(cleanBrandProfile, null, 2);

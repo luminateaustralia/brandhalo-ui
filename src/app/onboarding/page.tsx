@@ -7,7 +7,7 @@ import { api } from '@/lib/api';
 import Image from 'next/image';
 
 export default function OnboardingPage() {
-  const { user, isLoaded: isUserLoaded } = useUser();
+  const { isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,8 +44,8 @@ export default function OnboardingPage() {
           const response = await api.customers.create(customerData);
           console.log('Customer created successfully:', response);
           router.push('/dashboard');
-        } catch (apiError: any) {
-          if (apiError.message) {
+        } catch (apiError: unknown) {
+          if (apiError instanceof Error && apiError.message) {
             setError(`Failed to create customer: ${apiError.message}`);
           } else {
             setError('Failed to create customer. Please try again or contact support.');
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
               Welcome to BrandHalo
             </h1>
             <p className="text-lg text-gray-600">
-              Let's set up your organization to get started
+              Let&apos;s set up your organization to get started
             </p>
           </div>
 
@@ -226,7 +226,7 @@ export default function OnboardingPage() {
                 </div>
                 <h2 className="text-lg font-medium text-gray-900 mb-2">Organization setup complete!</h2>
                 <p className="text-gray-600 mb-6">
-                  You're all set to start using BrandHalo.
+                  You&apos;re all set to start using BrandHalo.
                 </p>
                 <button
                   onClick={() => router.push('/dashboard')}

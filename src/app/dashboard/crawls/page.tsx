@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { api, ActiveScan } from '@/lib/api';
 
 interface Scan {
@@ -89,7 +89,7 @@ export default function ScansPage() {
         clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [fetchScans]);
 
   // Fetch active scans
   const fetchActiveScans = async () => {
@@ -106,7 +106,7 @@ export default function ScansPage() {
   };
 
   // Fetch scan data
-  const fetchScans = async () => {
+  const fetchScans = useCallback(async () => {
     setIsRefreshing(true);
     try {
       setLoading(true);
@@ -115,7 +115,16 @@ export default function ScansPage() {
       // Use the API to fetch scans
       const data = await api.scans.getAllScans();
       console.log('API scan data:', data); // Log the raw data from API
-      setScans(data.map((scan: any) => {
+      setScans(data.map((scan: {
+        scanId: string;
+        websiteId?: string;
+        status?: string;
+        currentCount?: number;
+        pageCount?: number;
+        dateStarted?: string;
+        customerId?: string;
+        crawltimestamp: string;
+      }) => {
         console.log('Processing scan:', scan); // Debug log
         console.log('crawltimestamp:', scan.crawltimestamp); // Log the timestamp specifically
         return {
@@ -141,7 +150,7 @@ export default function ScansPage() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
   // Format date for display
   const formatDate = (dateString: string) => {

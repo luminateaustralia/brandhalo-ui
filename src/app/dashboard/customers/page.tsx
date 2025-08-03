@@ -2,7 +2,6 @@
 
 import { useApi } from '@/contexts/ApiContext';
 import { useEffect, useState } from 'react';
-import { Toast } from '@/components/ui/Toast';
 
 export default function CustomersPage() {
   const { customers, loading, error, refreshCustomers, startBrandCrawl } = useApi();

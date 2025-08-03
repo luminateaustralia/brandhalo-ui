@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser, useOrganization } from '@clerk/nextjs';
-import { useApi } from '@/contexts/ApiContext';
 import Link from 'next/link';
 import { 
   CheckCircleIcon, 
@@ -27,9 +26,7 @@ interface ChecklistItem {
 export default function DashboardPage() {
   const { user, isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
-  const { refreshCustomers } = useApi();
   const [isLoading, setIsLoading] = useState(true);
-  const [brandProfileExists, setBrandProfileExists] = useState(false);
 
   // Initial checklist items - brand completion will be updated based on API
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([
@@ -86,7 +83,6 @@ export default function DashboardPage() {
         const response = await fetch('/api/brand');
         if (response.ok) {
           // Brand profile exists
-          setBrandProfileExists(true);
           setChecklistItems(prev => 
             prev.map(item => 
               item.id === 'brand' ? { ...item, completed: true } : item
@@ -94,7 +90,6 @@ export default function DashboardPage() {
           );
         } else if (response.status === 404) {
           // No brand profile exists
-          setBrandProfileExists(false);
           setChecklistItems(prev => 
             prev.map(item => 
               item.id === 'brand' ? { ...item, completed: false } : item
@@ -104,7 +99,6 @@ export default function DashboardPage() {
       } catch (error) {
         console.error('Error checking brand profile:', error);
         // On error, assume no brand profile exists
-        setBrandProfileExists(false);
       }
     };
 
@@ -141,7 +135,7 @@ export default function DashboardPage() {
             Welcome {user?.firstName || user?.username || 'User'}!
           </h1>
           <p className="text-gray-600">
-            Let's get {organization?.name || 'your organization'} set up for brand monitoring
+            Let&apos;s get {organization?.name || 'your organization'} set up for brand monitoring
           </p>
         </div>
       </div>
@@ -176,7 +170,6 @@ export default function DashboardPage() {
           <div className="p-4">
             <div className="space-y-3">
               {checklistItems.map((item, index) => {
-                const IconComponent = item.icon;
                 return (
                   <div 
                     key={item.id}

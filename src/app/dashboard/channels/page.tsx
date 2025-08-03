@@ -20,7 +20,7 @@ interface Channel {
   name: string;
   type: 'website' | 'social' | 'communication' | 'marketing';
   url?: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   brandScore: number;
   status: 'excellent' | 'good' | 'warning' | 'critical';
   pageCount?: number;

@@ -6,194 +6,17 @@ import {
   UserGroupIcon, 
   BriefcaseIcon, 
   HeartIcon, 
-  ShoppingBagIcon,
-  AcademicCapIcon,
   HomeIcon,
   DocumentArrowDownIcon,
   ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
 import { exportPersonaToPDF, copyPersonaToClipboard } from '@/utils/personaExport';
-
-interface Persona {
-  id: string;
-  name: string;
-  age: number;
-  occupation: string;
-  location: string;
-  income: string;
-  image: string;
-  description: string;
-  goals: string[];
-  painPoints: string[];
-  preferredChannels: string[];
-  buyingBehavior: string;
-  icon: React.ComponentType<any>;
-  color: string;
-}
-
-const personas: Persona[] = [
-  {
-    id: '1',
-    name: 'Sarah Chen',
-    age: 32,
-    occupation: 'Marketing Manager',
-    location: 'Sydney, Australia',
-    income: '$85,000 - $110,000',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
-    description: 'Tech-savvy professional who values efficiency and quality. Early adopter of new products and services.',
-    goals: [
-      'Advance her career in marketing',
-      'Maintain work-life balance',
-      'Stay updated with latest trends',
-      'Build professional network'
-    ],
-    painPoints: [
-      'Limited time for research',
-      'Information overload',
-      'Difficulty finding trusted brands',
-      'Budget constraints for premium products'
-    ],
-    preferredChannels: ['LinkedIn', 'Email', 'Webinars', 'Industry blogs'],
-    buyingBehavior: 'Research-driven, reads reviews, compares options before purchasing',
-    icon: BriefcaseIcon,
-    color: 'bg-blue-100 text-blue-700'
-  },
-  {
-    id: '2',
-    name: 'Marcus Thompson',
-    age: 45,
-    occupation: 'Small Business Owner',
-    location: 'Melbourne, Australia',
-    income: '$120,000 - $150,000',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    description: 'Experienced entrepreneur running a local retail business. Values reliability and long-term partnerships.',
-    goals: [
-      'Grow his business revenue',
-      'Improve operational efficiency',
-      'Build customer loyalty',
-      'Expand to new markets'
-    ],
-    painPoints: [
-      'Cash flow management',
-      'Finding reliable suppliers',
-      'Competing with larger businesses',
-      'Managing multiple responsibilities'
-    ],
-    preferredChannels: ['Phone calls', 'In-person meetings', 'Industry magazines', 'Local networking'],
-    buyingBehavior: 'Relationship-focused, prefers established vendors, values personal service',
-    icon: ShoppingBagIcon,
-    color: 'bg-green-100 text-green-700'
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    age: 28,
-    occupation: 'Registered Nurse',
-    location: 'Brisbane, Australia',
-    income: '$70,000 - $85,000',
-    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face',
-    description: 'Caring healthcare professional focused on helping others. Values authentic brands with social impact.',
-    goals: [
-      'Provide excellent patient care',
-      'Continue professional development',
-      'Maintain physical and mental health',
-      'Support causes she believes in'
-    ],
-    painPoints: [
-      'Shift work affecting lifestyle',
-      'Emotional stress from work',
-      'Limited time for personal activities',
-      'Student loan repayments'
-    ],
-    preferredChannels: ['Instagram', 'Facebook', 'Healthcare forums', 'Podcasts'],
-    buyingBehavior: 'Values-driven, supports brands with social responsibility, influenced by peer recommendations',
-    icon: HeartIcon,
-    color: 'bg-pink-100 text-pink-700'
-  },
-  {
-    id: '4',
-    name: 'David Kim',
-    age: 55,
-    occupation: 'IT Director',
-    location: 'Perth, Australia',
-    income: '$140,000 - $180,000',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    description: 'Senior technology executive with extensive experience. Values security, reliability, and proven solutions.',
-    goals: [
-      'Modernize company IT infrastructure',
-      'Ensure cybersecurity compliance',
-      'Mentor junior team members',
-      'Plan for retirement'
-    ],
-    painPoints: [
-      'Keeping up with rapid tech changes',
-      'Budget approval processes',
-      'Vendor management complexity',
-      'Legacy system integration'
-    ],
-    preferredChannels: ['Industry conferences', 'Technical whitepapers', 'Vendor presentations', 'Professional networks'],
-    buyingBehavior: 'Evidence-based, requires detailed documentation, prefers established enterprise solutions',
-    icon: AcademicCapIcon,
-    color: 'bg-purple-100 text-purple-700'
-  },
-  {
-    id: '5',
-    name: 'Lisa Wilson',
-    age: 38,
-    occupation: 'Stay-at-home Parent',
-    location: 'Adelaide, Australia',
-    income: 'Household: $95,000 - $120,000',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
-    description: 'Dedicated mother of two managing household needs. Price-conscious but values quality for family products.',
-    goals: [
-      'Provide best for her children',
-      'Manage household budget effectively',
-      'Stay connected with other parents',
-      'Maintain family health and wellness'
-    ],
-    painPoints: [
-      'Limited personal time',
-      'Balancing quality vs. cost',
-      'Information overwhelm for product choices',
-      'Managing children\'s schedules'
-    ],
-    preferredChannels: ['Facebook groups', 'Parenting blogs', 'YouTube reviews', 'Word of mouth'],
-    buyingBehavior: 'Community-influenced, seeks recommendations, values family-friendly brands, bargain hunter',
-    icon: HomeIcon,
-    color: 'bg-orange-100 text-orange-700'
-  },
-  {
-    id: '6',
-    name: 'Alex Turner',
-    age: 24,
-    occupation: 'Graduate Student',
-    location: 'Canberra, Australia',
-    income: '$25,000 - $35,000',
-    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop&crop=face',
-    description: 'Environmentally conscious student pursuing Masters degree. Values sustainability and authentic brand messaging.',
-    goals: [
-      'Complete degree successfully',
-      'Find meaningful career opportunities',
-      'Live sustainably',
-      'Build professional network'
-    ],
-    painPoints: [
-      'Limited budget',
-      'Uncertain career prospects',
-      'Student debt concerns',
-      'Balancing study and part-time work'
-    ],
-    preferredChannels: ['TikTok', 'Instagram', 'University forums', 'Sustainability blogs'],
-    buyingBehavior: 'Price-sensitive, values sustainability, influenced by social media, prefers ethical brands',
-    icon: UserGroupIcon,
-    color: 'bg-teal-100 text-teal-700'
-  }
-];
+import { personas, PersonaData } from '@/lib/dummyData';
 
 export default function PersonasPage() {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const handleExportPDF = async (persona: Persona) => {
+  const handleExportPDF = async (persona: PersonaData) => {
     try {
       await exportPersonaToPDF(persona);
       setNotification({ message: `${persona.name}'s persona exported to PDF successfully!`, type: 'success' });
@@ -205,7 +28,7 @@ export default function PersonasPage() {
     }
   };
 
-  const handleCopyJSON = async (persona: Persona) => {
+  const handleCopyJSON = async (persona: PersonaData) => {
     try {
       await copyPersonaToClipboard(persona);
       setNotification({ message: `${persona.name}'s persona JSON copied to clipboard!`, type: 'success' });

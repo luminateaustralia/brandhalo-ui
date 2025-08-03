@@ -1,21 +1,5 @@
 import jsPDF from 'jspdf';
-
-export interface Persona {
-  id: string;
-  name: string;
-  age: number;
-  occupation: string;
-  location: string;
-  income: string;
-  image: string;
-  description: string;
-  goals: string[];
-  painPoints: string[];
-  preferredChannels: string[];
-  buyingBehavior: string;
-  icon: React.ComponentType<any>;
-  color: string;
-}
+import { PersonaData } from '@/lib/dummyData';
 
 // Helper function to convert image URL to base64
 const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
@@ -38,7 +22,7 @@ const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
   }
 };
 
-export const exportPersonaToPDF = async (persona: Persona) => {
+export const exportPersonaToPDF = async (persona: PersonaData) => {
   const pdf = new jsPDF();
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
@@ -101,7 +85,7 @@ export const exportPersonaToPDF = async (persona: Persona) => {
   pdf.text('Goals', margin, y);
   y += 8;
   pdf.setFontSize(10);
-  persona.goals.forEach((goal, index) => {
+  persona.goals.forEach((goal) => {
     if (y > pageHeight - 30) {
       pdf.addPage();
       y = margin;
@@ -120,7 +104,7 @@ export const exportPersonaToPDF = async (persona: Persona) => {
   pdf.text('Pain Points', margin, y);
   y += 8;
   pdf.setFontSize(10);
-  persona.painPoints.forEach((pain, index) => {
+  persona.painPoints.forEach((pain) => {
     if (y > pageHeight - 30) {
       pdf.addPage();
       y = margin;
@@ -168,7 +152,7 @@ export const exportPersonaToPDF = async (persona: Persona) => {
   pdf.save(`${persona.name.replace(/\s+/g, '_')}_Persona.pdf`);
 };
 
-export const copyPersonaToClipboard = async (persona: Persona) => {
+export const copyPersonaToClipboard = async (persona: PersonaData) => {
   // Create a clean JSON object without the React component
   const cleanPersona = {
     id: persona.id,

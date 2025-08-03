@@ -2,14 +2,14 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import type { Customer, CrawlStatus, CrawlConfig } from '@/lib/api';
+import type { Customer } from '@/lib/api';
 
 interface ApiContextType {
   customers: Customer[];
   loading: boolean;
   error: Error | null;
   refreshCustomers: () => Promise<void>;
-  startBrandCrawl: (brand: string, url: string) => Promise<any>;
+  startBrandCrawl: (brand: string, url: string) => Promise<unknown>;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);

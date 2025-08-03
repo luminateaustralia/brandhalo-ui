@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOrganization } from '@clerk/nextjs';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,9 +9,7 @@ import {
   ArrowLeftIcon, 
   ArrowRightIcon, 
   CheckIcon,
-  EyeIcon,
   PencilIcon,
-  PlusIcon,
   DocumentArrowDownIcon,
   ClipboardDocumentIcon,
   TrashIcon,
@@ -31,7 +29,8 @@ import CompetitiveLandscapeStep from '@/components/brand/CompetitiveLandscapeSte
 import MessagingStep from '@/components/brand/MessagingStep';
 import ComplianceStep from '@/components/brand/ComplianceStep';
 import BrandProfileView from '@/components/brand/BrandProfileView';
-import { exportBrandToPDF, copyBrandToClipboard } from '@/utils/brandExport';
+import { exportBrandToPDF, copyBrandToClipboard, copyBrandWithPersonasToClipboard } from '@/utils/brandExport';
+import { personas } from '@/lib/dummyData';
 
 // Default empty brand profile
 const getDefaultBrandProfile = (): BrandProfile => ({
@@ -174,7 +173,7 @@ export default function BrandPage() {
     if (isLoaded && organization) {
       loadBrandProfile();
     }
-  }, [isLoaded, organization]);
+  }, [isLoaded, organization, loadBrandProfile]);
 
   // Handle escape key to close delete dialog
   useEffect(() => {
@@ -193,7 +192,7 @@ export default function BrandPage() {
     };
   }, [showDeleteDialog]);
 
-  const loadBrandProfile = async () => {
+  const loadBrandProfile = useCallback(async () => {
     if (!organization) return;
     
     setIsLoading(true);
@@ -230,7 +229,7 @@ export default function BrandPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [organization, reset]);
 
   const onSubmit = async (data: BrandProfile) => {
     console.log('🔥 onSubmit called with data:', data);
@@ -331,6 +330,43 @@ export default function BrandPage() {
       await copyBrandToClipboard(brandProfile);
       setNotification({ 
         message: `Brand profile JSON copied to clipboard!`, 
+        type: 'success' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      setNotification({ 
+        message: 'Failed to copy to clipboard. Please try again.', 
+        type: 'error' 
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleCopyJSONWithPersonas = async () => {
+    if (!brandProfile) return;
+    
+    try {
+      // Clean personas data by removing the icon component for JSON serialization
+      const cleanPersonas = personas.map(persona => ({
+        id: persona.id,
+        name: persona.name,
+        age: persona.age,
+        occupation: persona.occupation,
+        location: persona.location,
+        income: persona.income,
+        image: persona.image,
+        description: persona.description,
+        goals: persona.goals,
+        painPoints: persona.painPoints,
+        preferredChannels: persona.preferredChannels,
+        buyingBehavior: persona.buyingBehavior,
+        color: persona.color
+      }));
+
+      await copyBrandWithPersonasToClipboard(brandProfile, cleanPersonas);
+      setNotification({ 
+        message: `Brand profile with personas JSON copied to clipboard!`, 
         type: 'success' 
       });
       setTimeout(() => setNotification(null), 3000);
@@ -457,6 +493,13 @@ export default function BrandPage() {
                 >
                   <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
                   Copy AI Brand
+                </button>
+                <button
+                  onClick={handleCopyJSONWithPersonas}
+                  className="inline-flex items-center px-4 py-2 border border-teal-300 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                >
+                  <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
+                  Copy AI Brand w/Personas
                 </button>
                 <button
                   onClick={handleEdit}

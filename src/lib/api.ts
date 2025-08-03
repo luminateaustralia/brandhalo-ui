@@ -32,7 +32,7 @@ export interface CrawlStatus {
 export interface CrawlResult {
   totalRecords: number;
   totalScans: number;
-  crawledItems: any[]; // Define proper type based on your data structure
+  crawledItems: unknown[]; // Generic crawled items
 }
 
 export interface ActiveScan {
@@ -132,7 +132,7 @@ export const api = {
                 errorMessage = errorDetails.error;
               }
             }
-          } catch(e) {
+          } catch {
             console.error('Error details (raw):', errorText);
             // Use the raw text if it's not JSON
             if (errorText) {
@@ -142,8 +142,8 @@ export const api = {
           
           // Create a custom error with status code and better details
           const error = new Error(`Failed to create customer: ${errorMessage}`);
-          (error as any).status = response.status;
-          (error as any).details = errorDetails;
+          (error as Error & { status?: number; details?: unknown }).status = response.status;
+          (error as Error & { status?: number; details?: unknown }).details = errorDetails;
           throw error;
         }
         
@@ -196,7 +196,7 @@ export const api = {
       return response.json();
     },
     
-    getAllScans: async (): Promise<any[]> => {
+    getAllScans: async (): Promise<unknown[]> => {
       const headers = await getHeaders();
       const response = await safeFetch(`${API_URL}/api/scans`, { headers });
       
@@ -206,7 +206,7 @@ export const api = {
       const rawData = await response.json();
       
       // Map the API response to the format expected by the UI
-      return rawData.map((scan: any) => ({
+      return rawData.map((scan: Record<string, unknown>) => ({
         scanId: scan.scanId,
         brand: scan.websiteId || "Unknown Brand", // Using websiteId as brand name
         url: scan.websiteId || "", // Using websiteId as URL too since that's what it appears to be
@@ -239,7 +239,7 @@ export const api = {
 
   // For backward compatibility (can be removed later)
   crawls: {
-    getAllCrawls: async (): Promise<any[]> => {
+    getAllCrawls: async (): Promise<unknown[]> => {
       return api.scans.getAllScans();
     },
     start: async (config: CrawlConfig) => {

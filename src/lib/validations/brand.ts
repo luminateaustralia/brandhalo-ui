@@ -99,14 +99,14 @@ export const brandProfileSchema = z.object({
 });
 
 // Individual section validation functions
-export const validateCompanyInfo = (data: any) => companyInfoSchema.safeParse(data);
-export const validateBrandEssence = (data: any) => brandEssenceSchema.safeParse(data);
-export const validateBrandPersonality = (data: any) => brandPersonalitySchema.safeParse(data);
-export const validateBrandVisuals = (data: any) => brandVisualsSchema.safeParse(data);
-export const validateTargetAudience = (data: any) => z.array(audienceSegmentSchema).safeParse(data);
-export const validateCompetitiveLandscape = (data: any) => competitiveLandscapeSchema.safeParse(data);
-export const validateMessaging = (data: any) => messagingSchema.safeParse(data);
-export const validateCompliance = (data: any) => complianceSchema.safeParse(data);
+export const validateCompanyInfo = (data: unknown) => companyInfoSchema.safeParse(data);
+export const validateBrandEssence = (data: unknown) => brandEssenceSchema.safeParse(data);
+export const validateBrandPersonality = (data: unknown) => brandPersonalitySchema.safeParse(data);
+export const validateBrandVisuals = (data: unknown) => brandVisualsSchema.safeParse(data);
+export const validateTargetAudience = (data: unknown) => z.array(audienceSegmentSchema).safeParse(data);
+export const validateCompetitiveLandscape = (data: unknown) => competitiveLandscapeSchema.safeParse(data);
+export const validateMessaging = (data: unknown) => messagingSchema.safeParse(data);
+export const validateCompliance = (data: unknown) => complianceSchema.safeParse(data);
 
 // Full brand profile validation
-export const validateBrandProfile = (data: any) => brandProfileSchema.safeParse(data);
+export const validateBrandProfile = (data: unknown) => brandProfileSchema.safeParse(data);

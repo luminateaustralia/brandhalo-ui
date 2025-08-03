@@ -9,6 +9,8 @@ import {
 } from '@/lib/db';
 import { BrandProfile } from '@/types/brand';
 
+export const runtime = 'edge';
+
 // Initialize database on first load
 initDatabase();
 

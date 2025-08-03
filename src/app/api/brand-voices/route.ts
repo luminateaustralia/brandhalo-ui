@@ -7,6 +7,8 @@ import {
 } from '@/lib/db';
 import { BrandVoiceFormData } from '@/types/brandVoice';
 
+export const runtime = 'edge';
+
 // GET - Retrieve all brand voices for the current organization
 export async function GET() {
   console.log('🔍 Brand Voices API GET route called');

@@ -9,55 +9,20 @@ const client = createClient({
 
 console.log('🔍 Database client created with URL:', 'libsql://bh-core-anthonyhook.aws-ap-northeast-1.turso.io');
 
-// Initialize the brand profiles table
+// Test database connection
 export async function initDatabase() {
-  console.log('🔍 Initializing database...');
+  console.log('🔍 Testing database connection...');
   
   try {
-    // Test database connection first
-    console.log('🔍 Testing database connection...');
+    // Test database connection
     const testResult = await client.execute('SELECT 1 as test');
     console.log('🔍 Database connection successful:', testResult);
     
-    console.log('🔍 Creating brand_profiles table...');
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS brand_profiles (
-        id TEXT PRIMARY KEY,
-        organization_id TEXT NOT NULL UNIQUE,
-        brand_data TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    console.log('🔍 Creating brand_voices table...');
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS brand_voices (
-        id TEXT PRIMARY KEY,
-        organization_id TEXT NOT NULL,
-        voice_data TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create an index on organization_id for faster lookups
-    console.log('🔍 Creating indexes...');
-    await client.execute(`
-      CREATE INDEX IF NOT EXISTS idx_brand_profiles_org_id 
-      ON brand_profiles(organization_id)
-    `);
-    
-    await client.execute(`
-      CREATE INDEX IF NOT EXISTS idx_brand_voices_org_id 
-      ON brand_voices(organization_id)
-    `);
-    
-    // Check if table exists and show current records
+    // Check if tables exist and show current records
     const tableCheck = await client.execute('SELECT COUNT(*) as count FROM brand_profiles');
-    console.log('✅ Database initialized successfully. Current records:', tableCheck.rows[0]);
+    console.log('✅ Database connection verified. Current records:', tableCheck.rows[0]);
   } catch (error) {
-    console.error('❌ Error initializing database:', error);
+    console.error('❌ Error connecting to database:', error);
     console.error('❌ Error details:', {
       message: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined

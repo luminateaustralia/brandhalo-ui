@@ -7,6 +7,8 @@ import {
 } from '@/lib/db';
 import { BrandVoiceFormData } from '@/types/brandVoice';
 
+export const runtime = 'edge';
+
 // PUT - Update existing brand voice
 export async function PUT(
   request: NextRequest,

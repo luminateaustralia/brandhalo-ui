@@ -18,22 +18,18 @@ initDatabase();
 export async function GET() {
   console.log('🔍 Brand API GET route called');
   try {
-    let orgId = null;
-    try {
-      const authResult = await auth();
-      orgId = authResult?.orgId;
-      console.log('🔍 Auth result:', { orgId });
-    } catch (error) {
-      console.error('🔍 Auth error:', error);
-      // Don't use fallback since we can see Clerk is working properly
-      throw error;
+    const authResult = await auth();
+    console.log('🔍 Auth result:', { orgId: authResult?.orgId, userId: authResult?.userId });
+    
+    if (!authResult?.userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    if (!orgId) {
+    if (!authResult?.orgId) {
       return NextResponse.json({ error: 'Organization ID required' }, { status: 401 });
     }
 
-    const brandProfile = await getBrandProfile(orgId);
+    const brandProfile = await getBrandProfile(authResult.orgId);
     
     if (!brandProfile) {
       return NextResponse.json({ error: 'Brand profile not found' }, { status: 404 });

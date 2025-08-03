@@ -50,21 +50,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // Helper to get headers with authentication
 const getHeaders = async () => {
-  // For client components, we'll dynamically import and use the auth function
-  // This is to avoid SSR issues with authentication
+  // For client components, use Clerk's auth token
   if (typeof window !== 'undefined') {
     try {
-      // Use dynamic import to avoid SSR issues
-      const { auth } = await import('@/auth');
-      const session = await auth();
-      const apiKey = session?.user?.apiKey || '';
-      
-      return {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      };
+      // Use Clerk's auth token from the window object if available
+      const clerkToken = (window as any).Clerk?.session?.getToken?.();
+      if (clerkToken) {
+        const token = await clerkToken;
+        return {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        };
+      }
     } catch (error) {
-      console.error('Error getting auth session:', error);
+      console.error('Error getting Clerk session:', error);
     }
   }
   

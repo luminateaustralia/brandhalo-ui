@@ -30,7 +30,7 @@ export default function OrganizationSetupPage() {
               footerActionLink: "text-blue-600 hover:text-blue-700",
             },
           }}
-          afterCreateOrganizationUrl="/dashboard"
+          forceRedirectUrl="/dashboard"
         />
       </div>
     </div>

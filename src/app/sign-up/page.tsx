@@ -60,9 +60,9 @@ export default function SignUpPage() {
                 footerActionLink: "text-[#8777E7] hover:text-[#7667d7]",
               },
             }}
-            redirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
             signInUrl="/sign-in"
-            afterSignUpUrl="/onboarding"
+            forceRedirectUrl="/onboarding"
             unsafeMetadata={{
               autoJoinDomain: true
             }}

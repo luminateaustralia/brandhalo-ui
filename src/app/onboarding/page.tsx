@@ -60,7 +60,7 @@ function OnboardingContent() {
         }
       } catch (err) {
         console.error('Error creating customer record:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred while creating your organization');
+        setError(err instanceof Error ? err.message : 'An error occurred while creating your organisation');
       } finally {
         setIsCreatingCustomer(false);
         setHasAttemptedCreation(true);
@@ -84,8 +84,8 @@ function OnboardingContent() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8777E7] mb-4"></div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Setting up your organization</h2>
-        <p className="text-gray-600">Please wait while we finish setting up your organization...</p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Setting up your organisation</h2>
+        <p className="text-gray-600">Please wait while we finish setting up your organisation...</p>
       </div>
     );
   }
@@ -113,7 +113,7 @@ function OnboardingContent() {
               Welcome to BrandHalo
             </h1>
             <p className="text-lg text-gray-600">
-              Let&apos;s set up your organization to get started
+              Let&apos;s set up your organisation to get started
             </p>
           </div>
 
@@ -181,9 +181,9 @@ function OnboardingContent() {
             {/* Step 1: Create Organization */}
             {step === 1 && (
               <div className="p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Create your organization</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Create your organisation</h2>
                 <p className="text-gray-600 mb-6">
-                  Create an organization to manage your team and brand monitoring. This will be where all your brand data is stored.
+                  Create an organisation to manage your team and brand monitoring. This will be where all your brand data is stored.
                 </p>
 
                 <div className="space-y-6">

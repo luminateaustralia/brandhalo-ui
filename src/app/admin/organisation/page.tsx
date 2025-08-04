@@ -59,10 +59,10 @@ export default function AdminOrganisationPage() {
       </div>
       
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">Organization Members</h3>
+        <h3 className="text-lg font-semibold mb-4">Organisation Members</h3>
         
         <p className="text-gray-600 mb-4">
-          View and manage members in your organization using the Organization Switcher in the header.
+          View and manage members in your organisation using the Organisation Switcher in the header.
         </p>
         
         <button 

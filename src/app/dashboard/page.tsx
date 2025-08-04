@@ -135,7 +135,7 @@ export default function DashboardPage() {
             Welcome {user?.firstName || user?.username || 'User'}!
           </h1>
           <p className="text-gray-600">
-            Let&apos;s get {organization?.name || 'your organization'} set up for brand monitoring
+            Let&apos;s get {organization?.name || 'your organisation'} set up for brand monitoring
           </p>
         </div>
       </div>

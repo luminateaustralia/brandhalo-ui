@@ -84,8 +84,8 @@ export default function AdminOrganisationPage() {
               </div>
             </div>
             
-            <InfoRow label="User ID" value={userId} copyable />
-            <InfoRow label="Username" value={user?.username} />
+            <InfoRow label="User ID" value={userId ?? undefined} copyable />
+            <InfoRow label="Username" value={user?.username ?? undefined} />
             <InfoRow label="Phone" value={user?.phoneNumbers[0]?.phoneNumber} />
             <InfoRow label="Created" value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : undefined} />
             <InfoRow label="Last Sign In" value={user?.lastSignInAt ? new Date(user.lastSignInAt).toLocaleDateString() : undefined} />
@@ -94,7 +94,7 @@ export default function AdminOrganisationPage() {
 
           {/* Session Information */}
           <InfoCard title="🔐 Session">
-            <InfoRow label="Session ID" value={sessionId} copyable />
+            <InfoRow label="Session ID" value={sessionId ?? undefined} copyable />
             <InfoRow label="Status" value={session?.status} />
             <InfoRow label="Last Active" value={session?.lastActiveAt ? new Date(session.lastActiveAt).toLocaleString() : undefined} />
             <InfoRow label="Expires" value={session?.expireAt ? new Date(session.expireAt).toLocaleString() : undefined} />
@@ -122,8 +122,8 @@ export default function AdminOrganisationPage() {
                 </div>
               </div>
               
-              <InfoRow label="Organization ID" value={orgId} copyable />
-              <InfoRow label="Slug" value={organization.slug} />
+              <InfoRow label="Organization ID" value={orgId ?? undefined} copyable />
+              <InfoRow label="Slug" value={organization.slug ?? undefined} />
               <InfoRow label="Created" value={new Date(organization.createdAt).toLocaleDateString()} />
               <InfoRow label="Members" value={organization.membersCount?.toString()} />
               <InfoRow label="Pending Invites" value={organization.pendingInvitationsCount?.toString()} />
@@ -201,9 +201,9 @@ export default function AdminOrganisationPage() {
 
           {/* Key IDs Summary */}
           <InfoCard title="🔑 Key Identifiers">
-            <InfoRow label="User ID" value={userId} copyable />
-            <InfoRow label="Org ID" value={orgId} copyable />
-            <InfoRow label="Session ID" value={sessionId} copyable />
+            <InfoRow label="User ID" value={userId ?? undefined} copyable />
+            <InfoRow label="Org ID" value={orgId ?? undefined} copyable />
+            <InfoRow label="Session ID" value={sessionId ?? undefined} copyable />
           </InfoCard>
 
           {/* Timestamps */}

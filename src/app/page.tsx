@@ -133,7 +133,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Image src="/images/logo-white.png" alt="BrandHalo" width={32} height={32} />
+              <Image src="/Logo.svg" alt="BrandHalo" width={32} height={32} />
               <div className="ml-4">
                 <h4 className="text-2xl font-bold">BrandHalo</h4>
                 <p className="text-sm opacity-70">© 2024 BrandHalo</p>

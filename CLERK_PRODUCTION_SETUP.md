@@ -13,8 +13,9 @@ CLERK_SECRET_KEY=sk_live_your_actual_production_secret_key
 # Your production domain
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/onboarding
+# Use the NEW redirect URL format (not the deprecated after_sign_in_url)
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/onboarding
 ```
 
 ### API Configuration  
@@ -24,26 +25,42 @@ NEXT_PUBLIC_API_URL=https://your-production-api.com
 NEXT_PUBLIC_API_KEY=your_production_api_key
 ```
 
+## ⚠️ CRITICAL: Your Current Issue
+
+**Problem**: You're still using **development Clerk keys** instead of production keys. 
+
+The error `joint-wildcat-28.clerk.accounts.dev` indicates development instance usage, which causes the 400 API errors and sign-in hanging.
+
 ## Steps to Fix Production Issues:
 
-1. **Create Production Instance in Clerk Dashboard:**
+1. **🔑 URGENT - Switch to Production Keys:**
    - Go to [Clerk Dashboard](https://dashboard.clerk.com)
-   - Create a new production instance or switch existing to production
-   - Get your production publishable and secret keys
+   - **Switch to your production instance** (not development)
+   - Copy the **production** publishable key (starts with `pk_live_`)
+   - Copy the **production** secret key (starts with `sk_live_`)
 
-2. **Update Environment Variables:**
-   - Replace development keys with production keys in your hosting platform
-   - Ensure all NEXT_PUBLIC_CLERK_* variables are set correctly
+2. **🌐 Update Environment Variables in your hosting platform:**
+   ```bash
+   # REMOVE these deprecated variables if they exist:
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
+   
+   # ADD these correct variables:
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_your_actual_production_key
+   CLERK_SECRET_KEY=sk_live_your_actual_production_secret
+   NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+   NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/onboarding
+   ```
 
-3. **Configure Allowed Domains:**
+3. **🔧 Configure Allowed Domains in Clerk:**
    - In Clerk Dashboard → Settings → Domains
-   - Add your production domain (e.g., yourdomain.com)
-   - Remove localhost/development domains for security
+   - Add `platform.brandhalo.io` to allowed domains
+   - Remove any localhost/development domains
 
-4. **Test the Deployment:**
-   - Clear browser cache and cookies
+4. **🧹 Clear Cache and Test:**
+   - Clear browser cache and cookies completely
+   - Redeploy your application
    - Test sign-up, sign-in, and organization functionality
-   - Check browser console for any remaining warnings
 
 ## Common Issues Fixed:
 

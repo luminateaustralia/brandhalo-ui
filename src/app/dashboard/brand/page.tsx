@@ -88,10 +88,10 @@ const getDefaultBrandProfile = (): BrandProfile => ({
 });
 
 // Get initial brand profile data (with dummy data if ENV=local)
-const getInitialBrandProfile = (): BrandProfile => {
+const getInitialBrandProfile = (orgId?: string): BrandProfile => {
   if (shouldUseDummyData()) {
     console.log('🧪 Using Mater Health dummy data for local development');
-    return getMaterHealthDummyData();
+    return getMaterHealthDummyData(orgId);
   }
   return getDefaultBrandProfile();
 };
@@ -159,7 +159,7 @@ export default function BrandPage() {
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
-    defaultValues: getInitialBrandProfile(),
+    defaultValues: getInitialBrandProfile(organization?.id),
     mode: 'onChange'
   });
 
@@ -200,7 +200,7 @@ export default function BrandPage() {
         // No brand profile exists yet, stay in create mode
         // Pre-populate with dummy data if ENV=local
         if (shouldUseDummyData()) {
-          const dummyData = getMaterHealthDummyData();
+          const dummyData = getMaterHealthDummyData(organization?.id);
           reset(dummyData);
           console.log('🧪 Pre-populated form with Mater Health dummy data');
         }
@@ -212,7 +212,7 @@ export default function BrandPage() {
       console.error('Error loading brand profile:', error);
       // Pre-populate with dummy data if ENV=local and there's an error
       if (shouldUseDummyData()) {
-        const dummyData = getMaterHealthDummyData();
+        const dummyData = getMaterHealthDummyData(organization?.id);
         reset(dummyData);
         console.log('🧪 Pre-populated form with Mater Health dummy data (fallback)');
         setMode('create');

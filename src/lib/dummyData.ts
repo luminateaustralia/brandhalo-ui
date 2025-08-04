@@ -9,9 +9,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Dummy data for Mater Health - comprehensive brand profile
-export const getMaterHealthDummyData = (): BrandProfile => ({
+export const getMaterHealthDummyData = (orgId?: string): BrandProfile => ({
   companyInfo: {
-    companyName: 'Mater Health',
+    companyName: orgId ? `Org: ${orgId}` : 'Mater Health',
     industry: 'Healthcare Services',
     website: 'https://www.materhealth.com.au',
     country: 'Australia',

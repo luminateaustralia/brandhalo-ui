@@ -161,7 +161,7 @@ export default function AdminOrganisationPage() {
                     const token = await getToken();
                     copyToClipboard(token || '');
                     alert('Session token copied!');
-                  } catch (error) {
+                  } catch {
                     alert('Failed to get token');
                   }
                 }}

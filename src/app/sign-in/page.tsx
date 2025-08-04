@@ -1,4 +1,5 @@
 import { SignIn } from '@clerk/nextjs';
+import Image from 'next/image';
 
 export default function SignInPage() {
   return (
@@ -6,9 +7,11 @@ export default function SignInPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="flex justify-center">
-            <img 
+            <Image 
               src="/Logo.svg" 
               alt="BrandHalo" 
+              width={48}
+              height={48}
               className="h-12 w-auto"
             />
           </div>

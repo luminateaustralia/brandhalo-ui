@@ -87,7 +87,7 @@ const getDefaultBrandProfile = (): BrandProfile => ({
   }
 });
 
-// Get initial brand profile data (with dummy data if ENV=local)
+// Get initial brand profile data (with dummy data only if ENV=dev)
 const getInitialBrandProfile = (orgId?: string): BrandProfile => {
   if (shouldUseDummyData()) {
     console.log('🧪 Using Mater Health dummy data for local development');
@@ -156,6 +156,7 @@ export default function BrandPage() {
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDummyDataButton, setShowDummyDataButton] = useState(false);
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
@@ -203,6 +204,9 @@ export default function BrandPage() {
           const dummyData = getMaterHealthDummyData(organization?.id);
           reset(dummyData);
           console.log('🧪 Pre-populated form with Mater Health dummy data');
+        } else {
+          // Show discrete dummy data button for non-dev environments
+          setShowDummyDataButton(true);
         }
         setMode('create');
       } else {
@@ -217,12 +221,26 @@ export default function BrandPage() {
         console.log('🧪 Pre-populated form with Mater Health dummy data (fallback)');
         setMode('create');
       } else {
+        // Show discrete dummy data button for non-dev environments
+        setShowDummyDataButton(true);
+        setMode('create');
         toast.error('Failed to load brand profile');
       }
     } finally {
       setIsLoading(false);
     }
   }, [organization, reset]);
+
+  // Handler to insert dummy data manually
+  const handleInsertDummyData = () => {
+    if (!organization?.id) return;
+    
+    const dummyData = getMaterHealthDummyData(organization.id);
+    reset(dummyData);
+    setShowDummyDataButton(false);
+    toast.success('Dummy data inserted!');
+    console.log('🧪 Manually inserted dummy data for org:', organization.id);
+  };
 
   // Load existing brand profile on mount
   useEffect(() => {
@@ -270,6 +288,7 @@ export default function BrandPage() {
       
       setBrandProfile(data);
       setMode('view');
+      setShowDummyDataButton(false); // Hide dummy data button after successful creation
       toast.success(mode === 'create' ? 'Brand profile created successfully!' : 'Brand profile updated successfully!');
     } catch (error) {
       console.error('❌ Error saving brand profile:', error);
@@ -597,14 +616,26 @@ export default function BrandPage() {
               }
             </p>
           </div>
-          {mode === 'edit' && (
-            <button
-              onClick={handleCancelEdit}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Discrete Dummy Data Button */}
+            {showDummyDataButton && mode === 'create' && (
+              <button
+                onClick={handleInsertDummyData}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200"
+                title="Insert sample data for testing"
+              >
+                🧪 Insert Demo Data
+              </button>
+            )}
+            {mode === 'edit' && (
+              <button
+                onClick={handleCancelEdit}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

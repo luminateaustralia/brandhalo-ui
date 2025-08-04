@@ -13,7 +13,7 @@ export default function AdminPage() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Organisation</h3>
-          <p className="text-gray-600">Organization settings and management</p>
+          <p className="text-gray-600">Organisation settings and management</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Scans</h3>

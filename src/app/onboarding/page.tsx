@@ -162,7 +162,7 @@ function OnboardingContent() {
                       }`}>
                         1
                       </div>
-                      <div className="ml-2 text-sm font-medium text-gray-900">Create Organization</div>
+                      <div className="ml-2 text-sm font-medium text-gray-900">Create Organisation</div>
                     </li>
                     <li className="flex items-center">
                       <div className="flex-shrink-0 w-5 h-0.5 bg-gray-200"></div>

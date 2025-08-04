@@ -32,8 +32,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!authResult?.orgId) {
+      return NextResponse.json({ error: 'Organization ID required' }, { status: 401 });
+    }
+
     const customerData: CustomerData = await request.json();
     console.log('🔍 Customer data received:', customerData);
+    
+    // SECURITY: Verify the org ID in the request matches the authenticated user's org
+    if (customerData.clerk_organisation_id !== authResult.orgId) {
+      console.error('🚨 SECURITY VIOLATION: User trying to create customer for different org!', {
+        userOrgId: authResult.orgId,
+        requestedOrgId: customerData.clerk_organisation_id,
+        userId: authResult.userId
+      });
+      return NextResponse.json({ 
+        error: 'Forbidden: Cannot create customer for different organization' 
+      }, { status: 403 });
+    }
     
     // Validate required fields
     if (!customerData.organisationName || !customerData.clerk_organisation_id) {

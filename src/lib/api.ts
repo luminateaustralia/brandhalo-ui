@@ -45,8 +45,8 @@ export interface ActiveScan {
   customerId?: string;
 }
 
-// API Client
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// API Client - Use same domain for API routes in production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8080');
 
 // Type definition for window with Clerk
 interface WindowWithClerk extends Window {
@@ -103,7 +103,15 @@ const safeFetch = async (url: string, options?: RequestInit) => {
     });
   }
   
-  return fetch(url, options);
+  try {
+    const response = await fetch(url, options);
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    console.error('URL:', url);
+    console.error('Options:', options);
+    throw new Error(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 export const api = {
@@ -116,7 +124,11 @@ export const api = {
       console.log('Request body:', JSON.stringify(data, null, 2));
       
       try {
-        const response = await safeFetch(`${API_URL}/api/customers/create`, {
+        // Use relative URL for Next.js API routes to avoid CORS issues
+        const apiUrl = `/api/customers/create`;
+        console.log('Calling API:', apiUrl);
+        
+        const response = await safeFetch(apiUrl, {
           method: 'POST',
           headers,
           body: JSON.stringify(data),
@@ -165,14 +177,14 @@ export const api = {
     
     getAll: async (): Promise<Customer[]> => {
       const headers = await getHeaders();
-      const response = await safeFetch(`${API_URL}/api/customers`, { headers });
+      const response = await safeFetch(`/api/customers`, { headers });
       if (!response.ok) throw new Error('Failed to fetch customers');
       return response.json();
     },
     
     getBrands: async (customerId: string) => {
       const headers = await getHeaders();
-      const response = await safeFetch(`${API_URL}/api/customers/${customerId}/brands`, { headers });
+      const response = await safeFetch(`/api/customers/${customerId}/brands`, { headers });
       if (!response.ok) throw new Error('Failed to fetch brands');
       return response.json();
     },

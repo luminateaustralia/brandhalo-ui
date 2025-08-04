@@ -12,7 +12,7 @@ import {
   UserGroupIcon,
   ShieldCheckIcon,
   Cog6ToothIcon,
-  Squares2X2Icon,
+
   GlobeAltIcon,
   ChartBarIcon,
   SpeakerWaveIcon
@@ -160,15 +160,6 @@ export default function Sidebar() {
           >
             <Cog6ToothIcon className="w-5 h-5" />
             {!isCollapsed && <span className="ml-3">Admin</span>}
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center ${
-              isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
-            } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
-          >
-            <Squares2X2Icon className="w-5 h-5" />
-            {!isCollapsed && <span className="ml-3">Dashboard</span>}
           </Link>
         </div>
       </nav>

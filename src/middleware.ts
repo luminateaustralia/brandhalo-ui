@@ -19,7 +19,21 @@ const isApiRoute = createRouteMatcher([
   '/api/brand(.*)'
 ]);
 
+// Define public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/organization-setup(.*)',
+  '/onboarding(.*)'
+]);
+
 export default clerkMiddleware(async (auth, req) => {
+  // Allow public routes without authentication
+  if (isPublicRoute(req)) {
+    return;
+  }
+
   // Always allow API requests from our internal services
   if (isApiRoute(req)) {
     return;

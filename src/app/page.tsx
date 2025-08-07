@@ -134,13 +134,43 @@ export default function HomePage() {
             
             {/* Image Column - Right */}
             <div className="relative">
-              <Image
-                src="/dashboard.png"
-                alt="BrandHalo Dashboard"
-                width={1200}
-                height={754}
-                className="rounded-lg shadow-2xl w-full h-auto"
-              />
+              {/* Browser Frame */}
+              <div className="bg-gray-800 rounded-t-xl p-3 shadow-2xl">
+                {/* Browser Header */}
+                <div className="flex items-center justify-between mb-0">
+                  {/* Traffic Light Buttons */}
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  
+                  {/* Address Bar */}
+                  <div className="flex-1 mx-4">
+                    <div className="bg-gray-700 rounded-md px-3 py-1 text-xs text-gray-300 text-center">
+                      platform.brandhalo.io
+                    </div>
+                  </div>
+                  
+                  {/* Menu Dots */}
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                    <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                    <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Dashboard Image */}
+              <div className="bg-white rounded-b-xl shadow-2xl overflow-hidden">
+                <Image
+                  src="/dashboard.png"
+                  alt="BrandHalo Dashboard"
+                  width={1200}
+                  height={754}
+                  className="w-full h-auto"
+                />
+              </div>
             </div>
           </div>
         </div>

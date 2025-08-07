@@ -105,6 +105,7 @@ function AdminContent({
                 organizationProfileUrl="/admin/organisation"
               />
               <UserButton 
+                afterSignOutUrl="/"
                 appearance={{
                   elements: {
                     userButtonAvatarBox: "w-8 h-8",

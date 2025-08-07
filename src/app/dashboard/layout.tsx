@@ -105,7 +105,14 @@ function DashboardContent({
               afterLeaveOrganizationUrl="/dashboard"
               afterSelectOrganizationUrl="/dashboard"
             />
-            <UserButton />
+            <UserButton 
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "w-8 h-8",
+                },
+              }}
+            />
           </div>
         </header>
         <main className="flex-1 p-8 min-h-0 overflow-auto bg-gray-50">{children}</main>

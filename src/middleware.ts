@@ -20,6 +20,12 @@ const isApiRoute = createRouteMatcher([
   '/api/brand(.*)'
 ]);
 
+// Define Clerk internal routes that should be allowed
+const isClerkRoute = createRouteMatcher([
+  '/api/auth(.*)',
+  '/_clerk(.*)',
+]);
+
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -37,6 +43,17 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Always allow API requests from our internal services
   if (isApiRoute(req)) {
+    return;
+  }
+
+  // Allow Clerk internal routes (for auth flows)
+  if (isClerkRoute(req)) {
+    return;
+  }
+
+  // For POST requests to dashboard routes during signout, allow them through
+  // This prevents 405 errors when Clerk makes POST requests during signout
+  if (req.method === 'POST' && isDashboardRoute(req)) {
     return;
   }
   

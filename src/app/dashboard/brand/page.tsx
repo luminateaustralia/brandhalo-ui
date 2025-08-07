@@ -20,7 +20,7 @@ import {
 
 import { BrandProfile, FormMode, FormStep } from '@/types/brand';
 import { brandProfileSchema } from '@/lib/validations/brand';
-import { getMaterHealthDummyData, shouldUseDummyData } from '@/lib/dummyData';
+import { getMaterHealthDummyData } from '@/lib/dummyData';
 import BrandStepProgress from '@/components/brand/BrandStepProgress';
 import CompanyInfoStep from '@/components/brand/CompanyInfoStep';
 import BrandEssenceStep from '@/components/brand/BrandEssenceStep';
@@ -31,6 +31,7 @@ import CompetitiveLandscapeStep from '@/components/brand/CompetitiveLandscapeSte
 import MessagingStep from '@/components/brand/MessagingStep';
 import ComplianceStep from '@/components/brand/ComplianceStep';
 import BrandProfileView from '@/components/brand/BrandProfileView';
+import BrandGuidedSetup from '@/components/brand/BrandGuidedSetup';
 import { exportBrandToPDF, copyBrandToClipboard, copyBrandWithPersonasToClipboard } from '@/utils/brandExport';
 import { personas } from '@/lib/dummyData';
 
@@ -89,12 +90,8 @@ const getDefaultBrandProfile = (): BrandProfile => ({
   }
 });
 
-// Get initial brand profile data (with dummy data only if ENV=dev)
-const getInitialBrandProfile = (orgId?: string): BrandProfile => {
-  if (shouldUseDummyData()) {
-    console.log('🧪 Using Mater Health dummy data for local development');
-    return getMaterHealthDummyData(orgId);
-  }
+// Get initial brand profile data (empty by default)
+const getInitialBrandProfile = (): BrandProfile => {
   return getDefaultBrandProfile();
 };
 
@@ -159,12 +156,13 @@ export default function BrandPage() {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDummyDataButton, setShowDummyDataButton] = useState(false);
+  const [showGuidedSetup, setShowGuidedSetup] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
-    defaultValues: getInitialBrandProfile(organization?.id),
+    defaultValues: getInitialBrandProfile(),
     mode: 'onChange'
   });
 
@@ -202,34 +200,18 @@ export default function BrandPage() {
         reset(data.brandData);
         setMode('view');
       } else if (response.status === 404) {
-        // No brand profile exists yet, stay in create mode
-        // Pre-populate with dummy data if ENV=local
-        if (shouldUseDummyData()) {
-          const dummyData = getMaterHealthDummyData(organization?.id);
-          reset(dummyData);
-          console.log('🧪 Pre-populated form with Mater Health dummy data');
-        } else {
-          // Show discrete dummy data button for non-dev environments
-          setShowDummyDataButton(true);
-        }
-        setMode('create');
+        // No brand profile exists yet - show guided setup
+        console.log('🔍 No brand profile found (404). Showing guided setup');
+        setShowGuidedSetup(true);
       } else {
         throw new Error('Failed to load brand profile');
       }
     } catch (error) {
       console.error('Error loading brand profile:', error);
-      // Pre-populate with dummy data if ENV=local and there's an error
-      if (shouldUseDummyData()) {
-        const dummyData = getMaterHealthDummyData(organization?.id);
-        reset(dummyData);
-        console.log('🧪 Pre-populated form with Mater Health dummy data (fallback)');
-        setMode('create');
-      } else {
-        // Show discrete dummy data button for non-dev environments
-        setShowDummyDataButton(true);
-        setMode('create');
-        toast.error('Failed to load brand profile');
-      }
+      // Show guided setup when there's an error loading
+      console.log('🔍 Showing guided setup (error case)');
+      setShowGuidedSetup(true);
+      toast.error('Failed to load brand profile');
     } finally {
       setIsLoading(false);
     }
@@ -244,6 +226,25 @@ export default function BrandPage() {
     setShowDummyDataButton(false);
     toast.success('Dummy data inserted!');
     console.log('🧪 Manually inserted dummy data for org:', organization.id);
+  };
+
+  // Handler for guided setup option selection
+  const handleGuidedSetupOption = (option: 'autodiscover' | 'manual') => {
+    if (option === 'manual') {
+      // Start manual build - go to step 1 of the form
+      setShowGuidedSetup(false);
+      setMode('create');
+      setCurrentStep(0);
+    }
+    // For autodiscover, the BrandGuidedSetup component handles the flow internally
+  };
+
+  // Handler for successful autodiscovery completion
+  const handleAutodiscoveryComplete = (brandData: any) => {
+    // Reload the brand profile to get the newly created data
+    loadBrandProfile();
+    setShowGuidedSetup(false);
+    toast.success('Brand profile created successfully!');
   };
 
   // Load existing brand profile on mount
@@ -487,6 +488,17 @@ export default function BrandPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Organization Required</h2>
         <p className="text-gray-600">Please select or create an organization to manage your brand profile.</p>
       </div>
+    );
+  }
+
+  // Show guided setup when no brand exists and not in dev mode
+  if (showGuidedSetup) {
+    console.log('🔍 Rendering guided setup UI');
+    return (
+      <BrandGuidedSetup
+        onSelectOption={handleGuidedSetupOption}
+        onAutodiscoveryComplete={handleAutodiscoveryComplete}
+      />
     );
   }
 

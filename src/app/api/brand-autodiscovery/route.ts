@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     console.log('🔍 Retrieved messages:', messagesData.data?.length);
 
     // Find the assistant's response
-    const assistantMessage = messagesData.data?.find((msg: any) => msg.role === 'assistant');
+    const assistantMessage = messagesData.data?.find((msg: { role: string; content?: { text?: { value?: string } }[] }) => msg.role === 'assistant');
     
     if (!assistantMessage || !assistantMessage.content?.[0]?.text?.value) {
       console.error('❌ No assistant response found');

@@ -34,7 +34,7 @@ type AutodiscoveryFormData = z.infer<typeof autodiscoverySchema>;
 
 interface BrandGuidedSetupProps {
   onSelectOption: (option: 'autodiscover' | 'manual') => void;
-  onAutodiscoveryComplete: (brandData: any) => void;
+  onAutodiscoveryComplete: () => void;
 }
 
 export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComplete }: BrandGuidedSetupProps) {
@@ -94,7 +94,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
       }
 
       toast.success('Brand profile created successfully from autodiscovery!');
-      onAutodiscoveryComplete(brandData);
+      onAutodiscoveryComplete();
     } catch (error) {
       console.error('Error during autodiscovery:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to autodiscover brand information');
@@ -122,7 +122,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
               <SparklesIcon className="w-8 h-8 text-blue-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Let's discover your brand
+              Let&apos;s discover your brand
             </h1>
             
           </div>
@@ -139,7 +139,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
                 </h3>
                 <div className="mt-2 text-sm text-blue-700">
                   <p>
-                    We'll head off and find your brand from the website, your public channels, social media to automatically create a comprehensive brand profile including brand essence, personality, visuals, and messaging guidelines.
+                    We&apos;ll head off and find your brand from the website, your public channels, social media to automatically create a comprehensive brand profile including brand essence, personality, visuals, and messaging guidelines.
                   </p>
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Let's create your brand profile
+            Let&apos;s create your brand profile
           </h1>
           
         </div>
@@ -251,7 +251,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
                   Automated Discovery
                 </h3>
                 <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-                  Provide your brand name and website, and we'll discover brand for you from the web.
+                  Provide your brand name and website, and we&apos;ll discover brand for you from the web.
                 </p>
                 <div className="space-y-3 text-left">
                   
@@ -312,7 +312,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
         {/* Additional Info */}
         <div className="mt-16 text-center">
           <p className="text-gray-500 text-sm">
-            You can always edit and refine your brand profile after it's created
+            You can always edit and refine your brand profile after it&apos;s created
           </p>
         </div>
       </div>

@@ -8,8 +8,6 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
 import { 
-  ArrowLeftIcon, 
-  ArrowRightIcon, 
   CheckIcon,
   PencilIcon,
   DocumentArrowDownIcon,
@@ -23,7 +21,7 @@ import {
 import { BrandProfile, FormMode, FormStep } from '@/types/brand';
 import { brandProfileSchema } from '@/lib/validations/brand';
 import { getMaterHealthDummyData } from '@/lib/dummyData';
-import BrandStepProgress from '@/components/brand/BrandStepProgress';
+// import BrandStepProgress from '@/components/brand/BrandStepProgress'; // Unused import
 import CompanyInfoStep from '@/components/brand/CompanyInfoStep';
 import BrandEssenceStep from '@/components/brand/BrandEssenceStep';
 import BrandPersonalityStep from '@/components/brand/BrandPersonalityStep';
@@ -152,15 +150,15 @@ const formSteps: FormStep[] = [
 export default function BrandPage() {
   const { organization, isLoaded } = useOrganization();
   const [mode, setMode] = useState<FormMode>('create');
-  const [currentStep, setCurrentStep] = useState(0);
+  const [, setCurrentStep] = useState(0); // currentStep not currently used, but setter is needed for form navigation
   const [isLoading, setIsLoading] = useState(false);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDummyDataButton, setShowDummyDataButton] = useState(false);
   const [showGuidedSetup, setShowGuidedSetup] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
+  // const [isAnimating, setIsAnimating] = useState(false); // Unused variable
+  // const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward'); // Unused variable
   
   // Accordion state for expanded sections
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
@@ -254,7 +252,7 @@ export default function BrandPage() {
   };
 
   // Handler for successful autodiscovery completion
-  const handleAutodiscoveryComplete = (brandData: any) => {
+  const handleAutodiscoveryComplete = () => {
     // Reload the brand profile to get the newly created data
     loadBrandProfile();
     setShowGuidedSetup(false);
@@ -325,27 +323,27 @@ export default function BrandPage() {
     }
   };
 
-  const handleNext = () => {
-    if (currentStep < formSteps.length - 1) {
-      setIsAnimating(true);
-      setAnimationDirection('forward');
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1);
-        setIsAnimating(false);
-      }, 150);
-    }
-  };
+  // const handleNext = () => { // Unused function
+  //   if (currentStep < formSteps.length - 1) {
+  //     setIsAnimating(true);
+  //     setAnimationDirection('forward');
+  //     setTimeout(() => {
+  //       setCurrentStep(currentStep + 1);
+  //       setIsAnimating(false);
+  //     }, 150);
+  //   }
+  // };
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setIsAnimating(true);
-      setAnimationDirection('backward');
-      setTimeout(() => {
-        setCurrentStep(currentStep - 1);
-        setIsAnimating(false);
-      }, 150);
-    }
-  };
+  // const handlePrevious = () => { // Unused function
+  //   if (currentStep > 0) {
+  //     setIsAnimating(true);
+  //     setAnimationDirection('backward');
+  //     setTimeout(() => {
+  //       setCurrentStep(currentStep - 1);
+  //       setIsAnimating(false);
+  //     }, 150);
+  //   }
+  // };
 
   const handleEdit = () => {
     setMode('edit');
@@ -471,30 +469,30 @@ export default function BrandPage() {
     }
   };
 
-  const renderStepContent = () => {
-    const stepId = formSteps[currentStep].id;
-    
-    switch (stepId) {
-      case 'company-info':
-        return <CompanyInfoStep />;
-      case 'brand-essence':
-        return <BrandEssenceStep />;
-      case 'brand-personality':
-        return <BrandPersonalityStep />;
-      case 'brand-visuals':
-        return <BrandVisualsStep />;
-      case 'target-audience':
-        return <TargetAudienceStep />;
-      case 'competitive-landscape':
-        return <CompetitiveLandscapeStep />;
-      case 'messaging':
-        return <MessagingStep />;
-      case 'compliance':
-        return <ComplianceStep />;
-      default:
-        return null;
-    }
-  };
+  // const renderStepContent = () => { // Unused function
+  //   const stepId = formSteps[currentStep].id;
+  //   
+  //   switch (stepId) {
+  //     case 'company-info':
+  //       return <CompanyInfoStep />;
+  //     case 'brand-essence':
+  //       return <BrandEssenceStep />;
+  //     case 'brand-personality':
+  //       return <BrandPersonalityStep />;
+  //     case 'brand-visuals':
+  //       return <BrandVisualsStep />;
+  //     case 'target-audience':
+  //       return <TargetAudienceStep />;
+  //     case 'competitive-landscape':
+  //       return <CompetitiveLandscapeStep />;
+  //     case 'messaging':
+  //       return <MessagingStep />;
+  //     case 'compliance':
+  //       return <ComplianceStep />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   if (!isLoaded) {
     return (
@@ -691,7 +689,7 @@ export default function BrandPage() {
       <div className="flex-1 overflow-y-auto pb-32 pr-4 min-h-0">
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {formSteps.map((step, index) => (
+            {formSteps.map((step) => (
               <div key={step.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 {/* Section Header */}
                 <button

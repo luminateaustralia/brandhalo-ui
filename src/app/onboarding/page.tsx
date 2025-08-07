@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useUser, useOrganization, CreateOrganization, OrganizationList } from '@clerk/nextjs';
+import { useUser, useOrganization, CreateOrganization } from '@clerk/nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import Image from 'next/image';
@@ -91,153 +91,121 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <div className="max-w-6xl w-full mx-auto flex shadow-2xl rounded-lg overflow-hidden bg-white">
+          {/* Left side - Setup Progress */}
+          <div className="hidden lg:flex lg:w-1/2 bg-[url('/images/bg-pattern.png')] bg-cover bg-center px-8 py-12 flex-col justify-center">
+            <div className="max-w-md ml-auto mr-8">
+              <div className="mb-8">
                 <Image src="/Logo.svg" alt="BrandHalo" width={205} height={48} />
               </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="pt-24">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Welcome to BrandHalo
-            </h1>
-            <p className="text-lg text-gray-600">
-              Let&apos;s set up your organisation to get started
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                  <p className="mt-2 text-sm">
-                    <button 
-                      onClick={() => {
-                        setHasAttemptedCreation(false);
-                        setError(null);
-                      }}
-                      className="text-red-700 font-medium underline"
-                    >
-                      Try again
-                    </button>
-                    {" or "}
-                    <button 
-                      onClick={() => router.push('/dashboard')}
-                      className="text-red-700 font-medium underline"
-                    >
-                      Go to dashboard anyway
-                    </button>
+              
+              {step === 1 && (
+                <div>
+                  <span className="inline-block text-[#8777E7] font-semibold text-sm mb-3">
+                    STEP 1 OF 2
+                  </span>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                    Create your organisation
+                  </h1>
+                  <p className="text-xl text-gray-600">
+                    Fill out the form to set up your organisation and get started with BrandHalo.
                   </p>
                 </div>
-              </div>
+              )}
+
+              {step === 2 && (
+                <div>
+                  <span className="inline-block text-[#8777E7] font-semibold text-sm mb-3">
+                    COMPLETE
+                  </span>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                    You&apos;re all set!
+                  </h1>
+                  <p className="text-xl text-gray-600">
+                    Your organisation has been created successfully. Click the button to access your dashboard.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            {/* Progress steps */}
-            <div className="border-b border-gray-200">
-              <div className="px-6 py-4">
-                <nav className="flex">
-                  <ol role="list" className="flex items-center space-x-4">
-                    <li className="flex items-center">
-                      <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full ${
-                        step >= 1 ? 'bg-[#8777E7] text-white' : 'bg-gray-200 text-gray-500'
-                      }`}>
-                        1
-                      </div>
-                      <div className="ml-2 text-sm font-medium text-gray-900">Create Organisation</div>
-                    </li>
-                    <li className="flex items-center">
-                      <div className="flex-shrink-0 w-5 h-0.5 bg-gray-200"></div>
-                      <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full ml-4 ${
-                        step >= 2 ? 'bg-[#8777E7] text-white' : 'bg-gray-200 text-gray-500'
-                      }`}>
-                        2
-                      </div>
-                      <div className="ml-2 text-sm font-medium text-gray-900">Complete</div>
-                    </li>
-                  </ol>
-                </nav>
-              </div>
-            </div>
+          {/* Right side - Onboarding Form */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center px-8 py-12">
+            <div className="w-full max-w-sm ml-8 mr-auto lg:ml-8">
 
-            {/* Step 1: Create Organization */}
-            {step === 1 && (
-              <div className="p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Create your organisation</h2>
-                <p className="text-gray-600 mb-6">
-                  Create an organisation to manage your team and brand monitoring. This will be where all your brand data is stored.
-                </p>
-
-                <div className="space-y-6">
-                  <CreateOrganization 
-                    afterCreateOrganizationUrl="/onboarding"
-                    appearance={{
-                      elements: {
-                        rootBox: "w-full",
-                        card: "border-0 shadow-none p-0",
-                        headerTitle: "hidden",
-                        headerSubtitle: "hidden",
-                        formButtonPrimary: "bg-[#8777E7] hover:bg-[#7667d7]",
-                      },
-                    }}
-                  />
-
-                  <div className="border-t pt-6 mt-6">
-                    <p className="text-sm text-gray-500 mb-4">
-                      Already have an organization? You can join an existing organization instead.
-                    </p>
-                    <OrganizationList 
-                      afterSelectOrganizationUrl="/onboarding"
-                      appearance={{
-                        elements: {
-                          rootBox: "w-full",
-                          card: "border-0 shadow-none p-0",
-                        },
-                      }}
-                    />
+              {error && (
+                <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-700">{error}</p>
+                      <p className="mt-2 text-sm">
+                        <button 
+                          onClick={() => {
+                            setHasAttemptedCreation(false);
+                            setError(null);
+                          }}
+                          className="text-red-700 font-medium underline"
+                        >
+                          Try again
+                        </button>
+                        {" or "}
+                        <button 
+                          onClick={() => router.push('/dashboard')}
+                          className="text-red-700 font-medium underline"
+                        >
+                          Go to dashboard anyway
+                        </button>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Step 2: Completion */}
-            {step === 2 && (
-              <div className="p-6 text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#8777E7]/10 mb-4">
-                  <svg className="h-6 w-6 text-[#8777E7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+              {/* Step 1: Create Organization */}
+              {step === 1 && (
+                <CreateOrganization 
+                  afterCreateOrganizationUrl="/onboarding"
+                  hideSlug={true}
+                  appearance={{
+                    elements: {
+                      rootBox: "w-full",
+                      card: "bg-white shadow-xl",
+                      headerTitle: "hidden",
+                      headerSubtitle: "hidden",
+                      formButtonPrimary: "bg-[#8777E7] hover:bg-[#7667d7]",
+                    },
+                  }}
+                />
+              )}
+
+              {/* Step 2: Completion */}
+              {step === 2 && (
+                <div className="text-center">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#8777E7]/10 mb-4">
+                    <svg className="h-6 w-6 text-[#8777E7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Setup complete!</h2>
+                  <p className="text-gray-600 mb-6">
+                    You&apos;re all set to start using BrandHalo.
+                  </p>
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="w-full px-6 py-3 bg-[#8777E7] text-white font-medium rounded-lg hover:bg-[#7667d7] transition-colors"
+                  >
+                    Go to Dashboard
+                  </button>
                 </div>
-                <h2 className="text-lg font-medium text-gray-900 mb-2">Organization setup complete!</h2>
-                <p className="text-gray-600 mb-6">
-                  You&apos;re all set to start using BrandHalo.
-                </p>
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="px-6 py-3 bg-[#8777E7] text-white font-medium rounded-full hover:bg-[#7667d7] transition-colors"
-                >
-                  Go to Dashboard
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

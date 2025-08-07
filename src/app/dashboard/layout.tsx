@@ -1,8 +1,11 @@
 'use client';
 
-import { UserButton, useOrganization, OrganizationSwitcher, useUser, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, useOrganization, OrganizationSwitcher, useUser, SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
+import { ChevronDownIcon, UserIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 import Sidebar from '@/components/Sidebar';
 import SearchBox from '@/components/SearchBox';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
@@ -68,6 +71,28 @@ function DashboardContent({
   organization: ReturnType<typeof useOrganization>['organization'];
   isLoaded: boolean;
 }) {
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent double-clicks
+    
+    setIsSigningOut(true);
+    try {
+      // Use signOut with explicit redirect for Cloudflare Pages compatibility
+      await signOut({ redirectUrl: '/' });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Fallback: force redirect to home
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
   const { isCollapsed } = useSidebar();
 
   return (
@@ -105,14 +130,57 @@ function DashboardContent({
               afterLeaveOrganizationUrl="/dashboard"
               afterSelectOrganizationUrl="/dashboard"
             />
-            <UserButton 
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  userButtonAvatarBox: "w-8 h-8",
-                },
-              }}
-            />
+            {/* Custom User Menu for Cloudflare Pages compatibility */}
+            <Menu as="div" className="relative">
+              <Menu.Button className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors">
+                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                  <UserIcon className="w-5 h-5 text-gray-600" />
+                </div>
+                <span className="text-sm font-medium hidden md:block">
+                  {user?.firstName || user?.primaryEmailAddress?.emailAddress || 'User'}
+                </span>
+                <ChevronDownIcon className="w-4 h-4 text-gray-400 hidden md:block" />
+              </Menu.Button>
+              
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <div className="px-4 py-3">
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.firstName && user?.lastName 
+                        ? `${user.firstName} ${user.lastName}` 
+                        : user?.firstName || 'User'}
+                    </p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {user?.primaryEmailAddress?.emailAddress || ''}
+                    </p>
+                  </div>
+                  
+                  <div className="py-1">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={handleSignOut}
+                          disabled={isSigningOut}
+                          className={`${
+                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                          } ${isSigningOut ? 'opacity-50 cursor-not-allowed' : ''} flex w-full items-center px-4 py-2 text-sm`}
+                        >
+                          {isSigningOut ? 'Signing out...' : 'Sign out'}
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
           </div>
         </header>
         <main className="flex-1 p-8 min-h-0 overflow-auto bg-gray-50">{children}</main>

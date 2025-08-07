@@ -17,7 +17,10 @@ const nextConfig = {
         hostname: 'img.clerk.com',
       }
     ]
-  }
+  },
+  // Ensure compatibility with Cloudflare Pages
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
 };
 
 module.exports = nextConfig; 

@@ -15,7 +15,9 @@ import {
   DocumentArrowDownIcon,
   ClipboardDocumentIcon,
   TrashIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
 import { BrandProfile, FormMode, FormStep } from '@/types/brand';
@@ -159,6 +161,18 @@ export default function BrandPage() {
   const [showGuidedSetup, setShowGuidedSetup] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
+  
+  // Accordion state for expanded sections
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
+    'company-info': true,  // Company Information expanded by default
+    'brand-essence': false,
+    'brand-personality': false,
+    'brand-visuals': false,
+    'target-audience': false,
+    'competitive-landscape': false,
+    'messaging': false,
+    'compliance': false
+  });
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
@@ -245,6 +259,14 @@ export default function BrandPage() {
     loadBrandProfile();
     setShowGuidedSetup(false);
     toast.success('Brand profile created successfully!');
+  };
+
+  // Toggle section expansion for accordion
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
   };
 
   // Load existing brand profile on mount
@@ -665,83 +687,73 @@ export default function BrandPage() {
         </div>
       </div>
 
-      {/* Combined Progress + Form Content - All Scrollable */}
+      {/* Form Content - Accordion Layout */}
       <div className="flex-1 overflow-y-auto pb-32 pr-4 min-h-0">
-        <BrandStepProgress 
-          steps={formSteps} 
-          currentStep={currentStep} 
-          onStepClick={setCurrentStep}
-        />
-        
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="relative overflow-hidden">
-              <div className={`transition-all duration-300 ease-in-out transform ${
-                isAnimating 
-                  ? animationDirection === 'forward' 
-                    ? 'translate-x-full opacity-0' 
-                    : '-translate-x-full opacity-0'
-                  : 'translate-x-0 opacity-100'
-              }`}>
-                {renderStepContent()}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {formSteps.map((step, index) => (
+              <div key={step.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                {/* Section Header */}
+                <button
+                  type="button"
+                  onClick={() => toggleSection(step.id)}
+                  className="w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition-colors duration-200 flex items-center justify-between"
+                >
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">{step.title}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{step.description}</p>
+                  </div>
+                  {expandedSections[step.id] ? (
+                    <ChevronUpIcon className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+
+                {/* Section Content */}
+                {expandedSections[step.id] && (
+                  <div className="px-6 py-6 border-t border-gray-200">
+                    {step.id === 'company-info' && <CompanyInfoStep />}
+                    {step.id === 'brand-essence' && <BrandEssenceStep />}
+                    {step.id === 'brand-personality' && <BrandPersonalityStep />}
+                    {step.id === 'brand-visuals' && <BrandVisualsStep />}
+                    {step.id === 'target-audience' && <TargetAudienceStep />}
+                    {step.id === 'competitive-landscape' && <CompetitiveLandscapeStep />}
+                    {step.id === 'messaging' && <MessagingStep />}
+                    {step.id === 'compliance' && <ComplianceStep />}
+                  </div>
+                )}
               </div>
-            </div>
+            ))}
           </form>
         </FormProvider>
       </div>
 
-      {/* Sticky Navigation */}
+      {/* Sticky Save Button */}
       <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 px-8 py-4 shadow-lg z-50">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-end">
           <button
-            type="button"
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            onClick={(e) => {
+              console.log('🔥 Save button clicked!');
+              console.log('🔥 Current form state valid:', isValid);
+              console.log('🔥 Is loading:', isLoading);
+              handleSubmit(onSubmit)(e);
+            }}
+            disabled={isLoading}
+            className="inline-flex items-center px-8 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Previous
-          </button>
-
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              Step {currentStep + 1} of {formSteps.length}
-            </span>
-            
-            {currentStep === formSteps.length - 1 ? (
-              <button
-                onClick={(e) => {
-                  console.log('🔥 Save button clicked!');
-                  console.log('🔥 Current form state valid:', isValid);
-                  console.log('🔥 Is loading:', isLoading);
-                  handleSubmit(onSubmit)(e);
-                }}
-                disabled={isLoading}
-                className="inline-flex items-center px-8 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <CheckIcon className="w-4 h-4 mr-2" />
-                    Save Brand Profile
-                  </>
-                )}
-              </button>
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Saving...
+              </>
             ) : (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="inline-flex items-center px-6 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200"
-              >
-                Next
-                <ArrowRightIcon className="w-4 h-4 ml-2" />
-              </button>
+              <>
+                <CheckIcon className="w-4 h-4 mr-2" />
+                Save Brand Profile
+              </>
             )}
-          </div>
+          </button>
         </div>
       </div>
     </div>

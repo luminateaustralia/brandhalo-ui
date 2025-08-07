@@ -198,7 +198,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </button>
       </div>
       
-      <div className="p-6 space-y-0">
+      <div className="px-6 space-y-0">
       <ViewSection title="Company Information" icon={BuildingOfficeIcon} sectionId="company-info">
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ViewField label="Company Name" value={companyInfo.companyName} />

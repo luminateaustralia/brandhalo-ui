@@ -18,3 +18,12 @@ CREATE TABLE IF NOT EXISTS brand_voices (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create sign_ups table for capturing interest registrations
+CREATE TABLE IF NOT EXISTS sign_ups (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  signup_url TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

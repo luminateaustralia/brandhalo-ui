@@ -63,11 +63,16 @@ function AdminContent({
                   },
                 }}
                 hidePersonal
-                afterCreateOrganizationUrl="/admin"
-                afterLeaveOrganizationUrl="/admin"
-                afterSelectOrganizationUrl="/admin"
+                createOrganizationUrl="/organization-setup"
+                organizationProfileUrl="/admin/organisation"
               />
-              <UserButton afterSignOutUrl="/" />
+              <UserButton 
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "w-8 h-8",
+                  },
+                }}
+              />
             </div>
           </header>
           

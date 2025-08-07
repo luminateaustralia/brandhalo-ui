@@ -9,7 +9,8 @@ interface Organization {
 
 // Define routes that require organization membership
 const isDashboardRoute = createRouteMatcher([
-  '/dashboard(.*)'
+  '/dashboard(.*)',
+  '/admin(.*)'
 ]);
 
 // Define API routes that should be accessible
@@ -39,9 +40,15 @@ export default clerkMiddleware(async (auth, req) => {
     return;
   }
   
-  // For dashboard routes, check if user has an organization
+  // For dashboard routes, enforce authentication and organization membership
   if (isDashboardRoute(req)) {
     const session = await auth();
+    
+    // If not authenticated, redirect to sign-in
+    if (!session.userId) {
+      const signInUrl = new URL('/sign-in', req.url);
+      return NextResponse.redirect(signInUrl);
+    }
     
     // If authenticated but has no organization, try to join based on domain
     if (session.userId && !session.orgId) {
@@ -81,6 +88,13 @@ export default clerkMiddleware(async (auth, req) => {
       const onboardingUrl = new URL('/onboarding', req.url);
       return NextResponse.redirect(onboardingUrl);
     }
+  }
+  
+  // For all other protected routes, just ensure authentication
+  const session = await auth();
+  if (!session.userId) {
+    const signInUrl = new URL('/sign-in', req.url);
+    return NextResponse.redirect(signInUrl);
   }
 });
 

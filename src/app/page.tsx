@@ -164,7 +164,7 @@ export default function HomePage() {
               {/* Dashboard Image */}
               <div className="bg-white rounded-b-xl shadow-2xl overflow-hidden">
                 <Image
-                  src="/dashboard.png"
+                  src="/home-dashboard.png"
                   alt="BrandHalo Dashboard"
                   width={1200}
                   height={754}

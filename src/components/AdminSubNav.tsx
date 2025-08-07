@@ -6,7 +6,8 @@ import {
   UserGroupIcon, 
   GlobeAltIcon, 
   BuildingOfficeIcon, 
-  MagnifyingGlassCircleIcon 
+  MagnifyingGlassCircleIcon,
+  SwatchIcon
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -29,6 +30,11 @@ const navItems = [
     name: 'Scans',
     href: '/admin/scans',
     icon: MagnifyingGlassCircleIcon,
+  },
+  {
+    name: 'Brand Config',
+    href: '/admin/brand-configuration',
+    icon: SwatchIcon,
   },
 ];
 

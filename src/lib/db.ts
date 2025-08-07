@@ -1,6 +1,7 @@
 import { createClient } from '@libsql/client';
 import type { BrandProfile } from '@/types/brand';
 import type { BrandVoice } from '@/types/brandVoice';
+import type { Persona } from '@/types/persona';
 
 const client = createClient({
   url: 'libsql://bh-core-anthonyhook.aws-ap-northeast-1.turso.io',
@@ -212,6 +213,91 @@ export async function deleteBrandVoice(id: string) {
     return { success: true };
   } catch (error) {
     console.error('Error deleting brand voice:', error);
+    throw error;
+  }
+}
+
+// Persona CRUD operations
+export async function createPersona(organizationId: string, personaData: Partial<Persona>) {
+  const id = `persona_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  console.log('🔍 Creating persona for org:', organizationId);
+  console.log('🔍 Persona data:', JSON.stringify(personaData, null, 2));
+  
+  try {
+    await client.execute({
+      sql: 'INSERT INTO brand_personas (id, organization_id, persona_data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
+      args: [
+        id,
+        organizationId,
+        JSON.stringify(personaData),
+        new Date().toISOString(),
+        new Date().toISOString()
+      ]
+    });
+    
+    return { id, ...personaData };
+  } catch (error) {
+    console.error('❌ Error creating persona:', error);
+    throw error;
+  }
+}
+
+export async function getPersonas(organizationId: string) {
+  console.log('🔍 Getting personas for org:', organizationId);
+  
+  try {
+    const result = await client.execute({
+      sql: 'SELECT * FROM brand_personas WHERE organization_id = ? ORDER BY created_at DESC',
+      args: [organizationId]
+    });
+    
+    console.log('🔍 Raw personas result:', result);
+    
+    return result.rows.map(row => ({
+      id: row.id as string,
+      organizationId: row.organization_id as string,
+      personaData: typeof row.persona_data === 'string' ? JSON.parse(row.persona_data) : row.persona_data,
+      createdAt: row.created_at as string,
+      updatedAt: row.updated_at as string
+    }));
+  } catch (error) {
+    console.error('❌ Error getting personas:', error);
+    throw error;
+  }
+}
+
+export async function updatePersona(id: string, personaData: Partial<Persona>) {
+  console.log('🔍 Updating persona:', id);
+  console.log('🔍 Update data:', JSON.stringify(personaData, null, 2));
+  
+  try {
+    const result = await client.execute({
+      sql: 'UPDATE brand_personas SET persona_data = ?, updated_at = ? WHERE id = ?',
+      args: [
+        JSON.stringify(personaData),
+        new Date().toISOString(),
+        id
+      ]
+    });
+    
+    return { id, ...personaData };
+  } catch (error) {
+    console.error('❌ Error updating persona:', error);
+    throw error;
+  }
+}
+
+export async function deletePersona(id: string) {
+  try {
+    await client.execute({
+      sql: 'DELETE FROM brand_personas WHERE id = ?',
+      args: [id]
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting persona:', error);
     throw error;
   }
 }

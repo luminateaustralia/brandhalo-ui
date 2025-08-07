@@ -151,7 +151,7 @@ export default function BrandVoicesPage() {
             Brand Voices
           </h1>
           <p className="text-lg text-gray-600 mt-2">
-            Manage employee brand voices for authentic content creation
+            Manage your brand voices for authentic content creation
           </p>
         </div>
         <button
@@ -159,7 +159,7 @@ export default function BrandVoicesPage() {
           className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
-          Add Employee Voice
+          Add Brand Voice
         </button>
       </div>
 

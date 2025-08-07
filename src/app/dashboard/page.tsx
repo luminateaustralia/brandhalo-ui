@@ -13,6 +13,7 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
+import UseBrand from '@/components/UseBrand';
 
 interface ChecklistItem {
   id: string;
@@ -28,7 +29,7 @@ export default function DashboardPage() {
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initial checklist items - brand completion will be updated based on API
+  // Initial checklist items - brand and personas completion will be updated based on API
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([
     {
       id: 'brand',
@@ -52,14 +53,6 @@ export default function DashboardPage() {
       description: 'Add social media and web channels to monitor',
       href: '/dashboard/channels',
       icon: GlobeAltIcon,
-      completed: false
-    },
-    {
-      id: 'compliance',
-      title: 'Configure Compliance Rules',
-      description: 'Set up brand guidelines and compliance monitoring',
-      href: '/dashboard/compliance',
-      icon: ShieldCheckIcon,
       completed: false
     }
   ]);
@@ -105,9 +98,47 @@ export default function DashboardPage() {
     checkBrandProfile();
   }, [isOrgLoaded, organization]);
 
+  // Check if personas exist and update checklist accordingly
+  useEffect(() => {
+    const checkPersonas = async () => {
+      if (!isOrgLoaded || !organization) return;
+      
+      try {
+        const response = await fetch('/api/personas');
+        if (response.ok) {
+          const personas = await response.json();
+          // Check if at least 1 persona exists
+          const hasPersonas = personas && personas.length > 0;
+          setChecklistItems(prev => 
+            prev.map(item => 
+              item.id === 'personas' ? { ...item, completed: hasPersonas } : item
+            )
+          );
+        } else if (response.status === 404) {
+          // No personas exist
+          setChecklistItems(prev => 
+            prev.map(item => 
+              item.id === 'personas' ? { ...item, completed: false } : item
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error checking personas:', error);
+        // On error, assume no personas exist
+        setChecklistItems(prev => 
+          prev.map(item => 
+            item.id === 'personas' ? { ...item, completed: false } : item
+          )
+        );
+      }
+    };
+
+    checkPersonas();
+  }, [isOrgLoaded, organization]);
+
   const toggleComplete = (id: string) => {
-    // Don't allow manual toggling of brand profile - it's determined by API
-    if (id === 'brand') {
+    // Don't allow manual toggling of brand profile or personas - they're determined by API
+    if (id === 'brand' || id === 'personas') {
       return;
     }
     
@@ -203,8 +234,8 @@ export default function DashboardPage() {
                         </Link>
                       )}
                       
-                      {/* Brand profile completion is determined by API, others are manually toggleable */}
-                      {item.id === 'brand' ? (
+                      {/* Brand profile and personas completion are determined by API, others are manually toggleable */}
+                      {(item.id === 'brand' || item.id === 'personas') ? (
                         <div className="p-1">
                           {item.completed ? (
                             <CheckCircleIconSolid className="w-4 h-4 text-green-600" />
@@ -253,9 +284,9 @@ export default function DashboardPage() {
                   <StarIcon className="w-4 h-4 text-purple-600 mr-2" />
                   <span className="text-sm font-medium text-gray-900">Manage Brand</span>
                 </Link>
-                <Link href="/dashboard/compliance" className="flex items-center p-2 border border-gray-200 rounded hover:border-purple-300 hover:bg-purple-50 transition-colors">
-                  <ShieldCheckIcon className="w-4 h-4 text-purple-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-900">View Compliance</span>
+                <Link href="/dashboard/personas" className="flex items-center p-2 border border-gray-200 rounded hover:border-purple-300 hover:bg-purple-50 transition-colors">
+                  <UserGroupIcon className="w-4 h-4 text-purple-600 mr-2" />
+                  <span className="text-sm font-medium text-gray-900">Manage Personas</span>
                 </Link>
                 <Link href="/chat" className="flex items-center p-2 border border-gray-200 rounded hover:border-purple-300 hover:bg-purple-50 transition-colors">
                   <ChartBarIcon className="w-4 h-4 text-purple-600 mr-2" />
@@ -266,17 +297,23 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Column - Reserved for Future Features */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-center h-full min-h-[300px]">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+        {/* Right Column - Use the Brand & Future Features */}
+        <div className="space-y-6">
+          {/* Use the Brand Component */}
+          <UseBrand />
+          
+          {/* Coming Soon Section */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-center h-full min-h-[200px]">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ChartBarIcon className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
+                <p className="text-gray-600 text-sm">
+                  Analytics and insights will appear here
+                </p>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
-              <p className="text-gray-600 text-sm">
-                Analytics and insights will appear here
-              </p>
             </div>
           </div>
         </div>

@@ -19,6 +19,15 @@ CREATE TABLE IF NOT EXISTS brand_voices (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create brand_personas table
+CREATE TABLE IF NOT EXISTS brand_personas (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL,
+  persona_data TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create sign_ups table for capturing interest registrations
 CREATE TABLE IF NOT EXISTS sign_ups (
   id TEXT PRIMARY KEY,

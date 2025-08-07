@@ -9,6 +9,10 @@ ON brand_profiles(organization_id);
 CREATE INDEX IF NOT EXISTS idx_brand_voices_org_id 
 ON brand_voices(organization_id);
 
+-- Create index on brand_personas organization_id for faster lookups
+CREATE INDEX IF NOT EXISTS idx_brand_personas_org_id 
+ON brand_personas(organization_id);
+
 -- Create index on customers clerk_organisation_id for faster lookups
 CREATE INDEX IF NOT EXISTS idx_customers_org_id 
 ON customers(clerk_organisation_id);

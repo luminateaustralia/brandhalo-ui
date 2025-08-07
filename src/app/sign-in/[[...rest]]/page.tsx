@@ -1,6 +1,8 @@
 import { SignIn } from '@clerk/nextjs';
 import Image from 'next/image';
 
+export const runtime = 'edge';
+
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex flex-col">

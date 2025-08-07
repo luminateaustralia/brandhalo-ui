@@ -101,15 +101,14 @@ function DashboardContent({
                 },
               }}
               hidePersonal
-              hideCreateOrganization
               afterCreateOrganizationUrl="/dashboard"
               afterLeaveOrganizationUrl="/dashboard"
               afterSelectOrganizationUrl="/dashboard"
             />
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </header>
-        <main className="flex-1 p-8 min-h-0 overflow-auto">{children}</main>
+        <main className="flex-1 p-8 min-h-0 overflow-auto bg-gray-50">{children}</main>
       </div>
     </div>
   );

@@ -102,7 +102,6 @@ function AdminContent({
                   },
                 }}
                 hidePersonal
-                hideCreateOrganization
                 organizationProfileUrl="/admin/organisation"
               />
               <UserButton 

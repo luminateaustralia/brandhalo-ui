@@ -157,6 +157,8 @@ export default function BrandPage() {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDummyDataButton, setShowDummyDataButton] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState<'forward' | 'backward'>('forward');
 
   const methods = useForm<BrandProfile>({
     resolver: zodResolver(brandProfileSchema),
@@ -300,13 +302,23 @@ export default function BrandPage() {
 
   const handleNext = () => {
     if (currentStep < formSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setIsAnimating(true);
+      setAnimationDirection('forward');
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+        setIsAnimating(false);
+      }, 150);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setIsAnimating(true);
+      setAnimationDirection('backward');
+      setTimeout(() => {
+        setCurrentStep(currentStep - 1);
+        setIsAnimating(false);
+      }, 150);
     }
   };
 
@@ -649,8 +661,16 @@ export default function BrandPage() {
         
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              {renderStepContent()}
+            <div className="relative overflow-hidden">
+              <div className={`transition-all duration-300 ease-in-out transform ${
+                isAnimating 
+                  ? animationDirection === 'forward' 
+                    ? 'translate-x-full opacity-0' 
+                    : '-translate-x-full opacity-0'
+                  : 'translate-x-0 opacity-100'
+              }`}>
+                {renderStepContent()}
+              </div>
             </div>
           </form>
         </FormProvider>

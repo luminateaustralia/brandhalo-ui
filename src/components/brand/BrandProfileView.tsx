@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   BuildingOfficeIcon,
   SparklesIcon,
@@ -9,7 +9,8 @@ import {
   UserGroupIcon,
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { BrandProfile } from '@/types/brand';
 
@@ -29,29 +30,93 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
     compliance
   } = brandProfile;
 
+  // State to track which sections are expanded (all collapsed by default for clean overview)
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
+    'company-info': false,
+    'brand-essence': false,
+    'brand-personality': false,
+    'brand-visuals': false,
+    'target-audience': false,
+    'competitive-landscape': false,
+    'messaging': false,
+    'compliance': false
+  });
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  const toggleAllSections = () => {
+    const allExpanded = Object.values(expandedSections).every(Boolean);
+    const newState = allExpanded ? false : true;
+    
+    setExpandedSections(prev => 
+      Object.keys(prev).reduce((acc, key) => ({
+        ...acc,
+        [key]: newState
+      }), {})
+    );
+  };
+
+  const allExpanded = Object.values(expandedSections).every(Boolean);
+
   const ViewSection = ({ 
     title, 
     children, 
-    icon: Icon 
+    icon: Icon,
+    sectionId
   }: { 
     title: string; 
     children: React.ReactNode; 
     icon?: React.ComponentType<{ className?: string }>;
-  }) => (
-    <div className="py-6 border-b border-gray-200 last:border-b-0">
-      <div className="flex items-center mb-4">
-        {Icon && (
-          <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mr-3">
-            <Icon className="w-5 h-5 text-purple-600" />
+    sectionId: string;
+  }) => {
+    const isExpanded = expandedSections[sectionId];
+    
+    return (
+      <div className="border-b border-gray-200 last:border-b-0">
+        <button
+          onClick={() => toggleSection(sectionId)}
+          className="w-full py-6 flex items-center justify-between transition-colors duration-200 focus:outline-none focus:bg-gray-50"
+        >
+          <div className="flex items-center">
+            {Icon && (
+              <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg mr-3">
+                <Icon className="w-5 h-5 text-purple-600" />
+              </div>
+            )}
+            <h3 className="text-lg font-medium text-gray-900">{title}</h3>
           </div>
-        )}
-        <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+          <div className="flex items-center">
+            <ChevronRightIcon 
+              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ease-in-out ${
+                isExpanded ? 'transform rotate-90' : 'transform rotate-0'
+              }`} 
+            />
+          </div>
+        </button>
+        
+        <div 
+          className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
+            isExpanded 
+              ? 'grid-rows-[1fr] opacity-100' 
+              : 'grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="min-h-0">
+            <div className={`pb-6 px-2 space-y-4 transition-transform duration-300 ease-in-out ${
+              isExpanded ? 'transform translate-y-0' : 'transform -translate-y-2'
+            }`}>
+              {children}
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="space-y-4">
-        {children}
-      </div>
-    </div>
-  );
+    );
+  };
 
   const ViewField = ({ label, value, link }: { label: string; value?: string | number | null; link?: boolean }) => {
     if (!value) return null;
@@ -118,8 +183,23 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Collapse/Expand All Button */}
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <button
+          onClick={toggleAllSections}
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+        >
+          <ChevronRightIcon 
+            className={`w-4 h-4 mr-2 transition-transform duration-200 ease-in-out ${
+              allExpanded ? 'transform rotate-0' : 'transform rotate-90'
+            }`}
+          />
+          {allExpanded ? 'Collapse All Sections' : 'Expand All Sections'}
+        </button>
+      </div>
+      
       <div className="p-6 space-y-0">
-      <ViewSection title="Company Information" icon={BuildingOfficeIcon}>
+      <ViewSection title="Company Information" icon={BuildingOfficeIcon} sectionId="company-info">
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ViewField label="Company Name" value={companyInfo.companyName} />
           <ViewField label="Industry" value={companyInfo.industry} />
@@ -130,7 +210,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Essence" icon={SparklesIcon}>
+      <ViewSection title="Brand Essence" icon={SparklesIcon} sectionId="brand-essence">
         <dl className="space-y-4">
           <ViewField label="Tagline" value={brandEssence.tagline} />
           <ViewField label="Brand Purpose" value={brandEssence.brandPurpose} />
@@ -143,7 +223,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Personality" icon={FaceSmileIcon}>
+      <ViewSection title="Brand Personality" icon={FaceSmileIcon} sectionId="brand-personality">
         <dl className="space-y-4">
           <ViewField label="Brand Archetype" value={brandPersonality.archetype} />
           <ViewList label="Brand Traits" items={brandPersonality.traits.filter((trait): trait is string => trait !== undefined)} />
@@ -154,7 +234,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Brand Visuals" icon={PaintBrushIcon}>
+      <ViewSection title="Brand Visuals" icon={PaintBrushIcon} sectionId="brand-visuals">
         <div className="space-y-6">
           <ViewField label="Logo URL" value={brandVisuals.logoURL} link />
           <ColorSwatch 
@@ -193,7 +273,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </div>
       </ViewSection>
 
-      <ViewSection title="Target Audience" icon={UserGroupIcon}>
+      <ViewSection title="Target Audience" icon={UserGroupIcon} sectionId="target-audience">
         <div className="space-y-6">
           {targetAudience.map((segment, index) => (
             <div key={index} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-6 hover:shadow-md transition-all duration-200">
@@ -213,7 +293,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </div>
       </ViewSection>
 
-      <ViewSection title="Competitive Landscape" icon={ChartBarIcon}>
+      <ViewSection title="Competitive Landscape" icon={ChartBarIcon} sectionId="competitive-landscape">
         <div className="space-y-6">
           {competitiveLandscape.primaryCompetitors?.length > 0 && (
             <div>
@@ -249,7 +329,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </div>
       </ViewSection>
 
-      <ViewSection title="Messaging" icon={ChatBubbleLeftRightIcon}>
+      <ViewSection title="Messaging" icon={ChatBubbleLeftRightIcon} sectionId="messaging">
         <dl className="space-y-4">
           <ViewField label="Elevator Pitch" value={messaging.elevatorPitch} />
           <ViewList label="Key Messages" items={messaging.keyMessages.filter((message): message is string => message !== undefined)} />
@@ -259,7 +339,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
         </dl>
       </ViewSection>
 
-      <ViewSection title="Compliance & Legal" icon={ShieldCheckIcon}>
+      <ViewSection title="Compliance & Legal" icon={ShieldCheckIcon} sectionId="compliance">
         <dl className="space-y-4">
           <ViewField label="Brand Guidelines URL" value={compliance.brandGuidelinesURL} link />
           <ViewField label="Trademark Status" value={compliance.trademarkStatus} />

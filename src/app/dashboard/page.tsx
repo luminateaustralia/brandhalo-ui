@@ -8,8 +8,7 @@ import {
   CheckCircleIcon, 
   StarIcon, 
   UserGroupIcon, 
-  GlobeAltIcon, 
-  ShieldCheckIcon,
+  GlobeAltIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
@@ -25,7 +24,7 @@ interface ChecklistItem {
 }
 
 export default function DashboardPage() {
-  const { user, isLoaded: isUserLoaded } = useUser();
+  const { isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const [isLoading, setIsLoading] = useState(true);
 

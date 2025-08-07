@@ -272,7 +272,7 @@ export async function updatePersona(id: string, personaData: Partial<Persona>) {
   console.log('🔍 Update data:', JSON.stringify(personaData, null, 2));
   
   try {
-    const result = await client.execute({
+    await client.execute({
       sql: 'UPDATE brand_personas SET persona_data = ?, updated_at = ? WHERE id = ?',
       args: [
         JSON.stringify(personaData),

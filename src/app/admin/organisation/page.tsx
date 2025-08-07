@@ -1,5 +1,7 @@
 'use client';
 
+export const runtime = 'edge';
+
 import { useOrganization, useUser, useAuth, useSession } from '@clerk/nextjs';
 import Image from 'next/image';
 

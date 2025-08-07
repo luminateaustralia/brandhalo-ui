@@ -1,5 +1,7 @@
 'use client';
 
+export const runtime = 'edge';
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { api, ActiveScan } from '@/lib/api';
 

@@ -1,6 +1,8 @@
 // src/app/dashboard/page.tsx
 'use client';
 
+export const runtime = 'edge';
+
 import { useState, useEffect } from 'react';
 import { useUser, useOrganization } from '@clerk/nextjs';
 import Link from 'next/link';

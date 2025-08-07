@@ -97,9 +97,11 @@ function DashboardContent({
                   rootBox: "bg-white",
                   organizationSwitcherTrigger: "bg-white hover:bg-gray-50",
                   organizationPreview: "text-sm",
+                  organizationSwitcherPopoverActionButton__createOrganization: "display: none !important",
                 },
               }}
               hidePersonal
+              hideCreateOrganization
               afterCreateOrganizationUrl="/dashboard"
               afterLeaveOrganizationUrl="/dashboard"
               afterSelectOrganizationUrl="/dashboard"

@@ -26,7 +26,7 @@ export default function Sidebar() {
     <div 
       className={`${
         isCollapsed ? 'w-16' : 'w-64'
-      } h-screen bg-gray-50 text-gray-800 transition-all duration-300 ease-in-out flex flex-col border-r border-gray-200 fixed left-0 top-0 z-20`}
+      } h-screen bg-gradient-to-b from-gray-100 to-gray-200 text-gray-800 transition-all duration-300 ease-in-out flex flex-col border-r border-gray-200 fixed left-0 top-0 z-20`}
     >
       {/* Logo Section */}
       <div className="p-4 flex items-center">

@@ -98,10 +98,11 @@ function AdminContent({
                     rootBox: "bg-white",
                     organizationSwitcherTrigger: "bg-white hover:bg-gray-50",
                     organizationPreview: "text-sm",
+                    organizationSwitcherPopoverActionButton__createOrganization: "display: none !important",
                   },
                 }}
                 hidePersonal
-                createOrganizationUrl="/organization-setup"
+                hideCreateOrganization
                 organizationProfileUrl="/admin/organisation"
               />
               <UserButton 

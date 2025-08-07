@@ -81,7 +81,7 @@ export default function HomePage() {
                 </Link>
                 <SignUpButton>
                   <button className="ml-4 px-6 py-2 rounded-full text-sm font-medium text-white bg-[#FF8B4E] hover:bg-[#ff7b3e] transition-colors">
-                    Register Interest
+                    Start Now
                   </button>
                 </SignUpButton>
               </SignedOut>

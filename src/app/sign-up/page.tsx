@@ -1,6 +1,5 @@
 import { SignUp } from '@clerk/nextjs';
 import Image from 'next/image';
-import Footer from '@/components/Footer';
 
 export default function SignUpPage() {
   return (
@@ -74,7 +73,6 @@ export default function SignUpPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 } 

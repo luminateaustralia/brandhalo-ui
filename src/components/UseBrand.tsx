@@ -49,9 +49,9 @@ export default function UseBrand({ className = '' }: UseBrandProps) {
       
       // Fetch brand profile, personas, and brand voices in parallel
       const [brandResponse, personasResponse, voicesResponse] = await Promise.all([
-        fetch('/api/brand').catch(() => ({ ok: false, status: 500 })),
-        fetch('/api/personas').catch(() => ({ ok: false, status: 500 })),
-        fetch('/api/brand-voices').catch(() => ({ ok: false, status: 500 }))
+        fetch('/api/brand').catch(() => new Response('{}', { status: 500, statusText: 'Internal Server Error' })),
+        fetch('/api/personas').catch(() => new Response('[]', { status: 500, statusText: 'Internal Server Error' })),
+        fetch('/api/brand-voices').catch(() => new Response('[]', { status: 500, statusText: 'Internal Server Error' }))
       ]);
 
       let brand = null;

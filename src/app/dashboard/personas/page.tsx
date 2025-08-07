@@ -44,6 +44,28 @@ const getPersonaColor = (index: number) => {
   return colors[index % colors.length];
 };
 
+// Helper function to get hex color for persona export
+const getPersonaHexColor = (occupation: string) => {
+  const lowerOccupation = occupation.toLowerCase();
+  if (lowerOccupation.includes('marketing') || lowerOccupation.includes('business')) {
+    return '#3B82F6'; // Blue
+  } else if (lowerOccupation.includes('healthcare') || lowerOccupation.includes('nurse')) {
+    return '#EF4444'; // Red
+  } else if (lowerOccupation.includes('parent') || lowerOccupation.includes('home')) {
+    return '#10B981'; // Green
+  }
+  return '#8B5CF6'; // Purple (default)
+};
+
+// Transform Persona to PersonaData for export functions
+const transformPersonaToPersonaData = (persona: Persona) => {
+  return {
+    ...persona,
+    icon: getPersonaIcon(persona.occupation),
+    color: getPersonaHexColor(persona.occupation)
+  };
+};
+
 export default function PersonasPage() {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,7 +188,8 @@ export default function PersonasPage() {
 
   const handleExportPDF = async (persona: Persona) => {
     try {
-      await exportPersonaToPDF(persona);
+      const personaData = transformPersonaToPersonaData(persona);
+      await exportPersonaToPDF(personaData);
       showNotification(`${persona.name}'s persona exported to PDF successfully!`, 'success');
     } catch (error) {
       console.error('Error exporting PDF:', error);
@@ -176,7 +199,8 @@ export default function PersonasPage() {
 
   const handleCopyJSON = async (persona: Persona) => {
     try {
-      await copyPersonaToClipboard(persona);
+      const personaData = transformPersonaToPersonaData(persona);
+      await copyPersonaToClipboard(personaData);
       showNotification(`${persona.name}'s persona JSON copied to clipboard!`, 'success');
     } catch (error) {
       console.error('Error copying to clipboard:', error);

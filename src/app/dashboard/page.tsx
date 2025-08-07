@@ -128,17 +128,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-gray-900 mb-1">
-            Welcome {user?.firstName || user?.username || 'User'}!
-          </h1>
-          <p className="text-gray-600">
-            Let&apos;s get {organization?.name || 'your organisation'} set up for brand monitoring
-          </p>
-        </div>
-      </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

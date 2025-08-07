@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         'OpenAI-Beta': 'assistants=v2'
       },
       body: JSON.stringify({
-        assistant_id: 'asst_w3zB27V3ePDpqThCoVyj8pXd'
+        assistant_id: 'asst_ljxVope9DeYRPKV6f54FQycU' //'asst_w3zB27V3ePDpqThCoVyj8pXd'
       })
     });
 

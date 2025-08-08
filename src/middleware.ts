@@ -80,10 +80,22 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(signInUrl);
     }
     
-    // If authenticated but has no organization, try to join based on domain
+    // If authenticated but has no active organization, check if user is member of any organization
     if (session.userId && !session.orgId) {
       try {
-        // Get user details
+        // Check if user is already a member of any organizations
+        const userOrganizations = await clerkClient.users.getOrganizationMembershipList({
+          userId: session.userId,
+        });
+        
+        // If user is already a member of organizations, let them through to dashboard
+        // The dashboard can handle organization selection
+        if (userOrganizations.data && userOrganizations.data.length > 0) {
+          console.log(`User ${session.userId} is member of ${userOrganizations.data.length} organizations, allowing dashboard access`);
+          return; // Allow access to dashboard
+        }
+        
+        // If no existing memberships, try to join based on domain
         const user = await clerkClient.users.getUser(session.userId);
         const userEmail = user.emailAddresses[0]?.emailAddress;
         
@@ -111,10 +123,10 @@ export default clerkMiddleware(async (auth, req) => {
           }
         }
       } catch (error) {
-        console.error('Error joining organization:', error);
+        console.error('Error checking organization memberships:', error);
       }
       
-      // If no matching organization found or error occurred, redirect to onboarding
+      // If no organization memberships found and no domain match, redirect to onboarding
       const onboardingUrl = new URL('/onboarding', req.url);
       return NextResponse.redirect(onboardingUrl);
     }

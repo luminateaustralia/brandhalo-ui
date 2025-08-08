@@ -21,6 +21,33 @@ export async function GET(request: NextRequest) {
         }
       ],
       "paths": {
+        "/api/oauth/userinfo": {
+          "get": {
+            "operationId": "getUserInfo",
+            "summary": "Get OAuth user information",
+            "description": "Retrieve user information for the authenticated OAuth token",
+            "security": [
+              {
+                "OAuth2": ["brand:read"]
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "User information",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/UserInfo"
+                    }
+                  }
+                }
+              },
+              "401": {
+                "description": "Unauthorized - Invalid or missing access token"
+              }
+            }
+          }
+        },
         "/api/mcp/connector": {
           "post": {
             "operationId": "callMcpTool",
@@ -28,7 +55,7 @@ export async function GET(request: NextRequest) {
             "description": "Execute a Model Context Protocol tool to retrieve brand data",
             "security": [
               {
-                "BearerAuth": []
+                "OAuth2": ["brand:read"]
               }
             ],
             "requestBody": {
@@ -70,11 +97,17 @@ export async function GET(request: NextRequest) {
       },
       "components": {
         "securitySchemes": {
-          "BearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "API Key",
-            "description": "BrandHalo API key (format: bh_xxxxxxxx)"
+          "OAuth2": {
+            "type": "oauth2",
+            "flows": {
+              "authorizationCode": {
+                "authorizationUrl": `${request.nextUrl.origin}/api/oauth/authorize`,
+                "tokenUrl": `${request.nextUrl.origin}/api/oauth/token`,
+                "scopes": {
+                  "brand:read": "Read brand profile information"
+                }
+              }
+            }
           }
         },
         "schemas": {
@@ -122,6 +155,32 @@ export async function GET(request: NextRequest) {
               "error": {
                 "type": "string",
                 "description": "Error message if execution failed"
+              }
+            }
+          },
+          "UserInfo": {
+            "type": "object",
+            "description": "OAuth user information",
+            "properties": {
+              "sub": {
+                "type": "string",
+                "description": "Subject identifier (organization ID)"
+              },
+              "name": {
+                "type": "string",
+                "description": "User display name"
+              },
+              "email": {
+                "type": "string",
+                "description": "User email address"
+              },
+              "organization_id": {
+                "type": "string",
+                "description": "Organization identifier"
+              },
+              "scope": {
+                "type": "string",
+                "description": "Granted OAuth scopes"
               }
             }
           },

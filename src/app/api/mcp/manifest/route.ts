@@ -5,6 +5,8 @@ export const runtime = 'edge';
 // GET - Serve the ChatGPT MCP Connector manifest
 export async function GET(request: NextRequest) {
   console.log('📋 ChatGPT MCP Connector manifest requested');
+  console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+  console.log('Request URL:', request.url);
   
   try {
     const manifest = {
@@ -16,6 +18,7 @@ export async function GET(request: NextRequest) {
       "auth": {
         "type": "oauth2",
         "oauth_url": `${request.nextUrl.origin}/api/oauth/authorize`,
+        "token_url": `${request.nextUrl.origin}/api/oauth/token`,
         "scope": "brand:read",
         "instructions": "Authenticate with your BrandHalo account to access brand data"
       },

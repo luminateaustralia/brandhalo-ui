@@ -51,8 +51,23 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate client (for now, accept any ChatGPT client)
-    if (!clientId.includes('chatgpt') && !clientId.includes('openai')) {
+    // Validate client (accept ChatGPT, OpenAI, and development clients)
+    const validClientPatterns = [
+      'chatgpt',
+      'openai', 
+      'gpt',
+      'mcp',
+      'connector',
+      'dev',
+      'test'
+    ];
+    
+    const isValidClient = validClientPatterns.some(pattern => 
+      clientId.toLowerCase().includes(pattern.toLowerCase())
+    );
+    
+    if (!isValidClient) {
+      console.log(`Invalid client_id: ${clientId}`);
       const errorUrl = new URL(redirectUri);
       errorUrl.searchParams.set('error', 'invalid_client');
       errorUrl.searchParams.set('error_description', 'Invalid client_id');

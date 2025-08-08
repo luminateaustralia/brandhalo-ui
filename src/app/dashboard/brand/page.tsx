@@ -525,7 +525,7 @@ export default function BrandPage() {
   // View mode - show completed brand profile
   if (mode === 'view' && brandProfile) {
     return (
-      <div className="w-full">
+      <div className="w-full flex flex-col lg:flex-row">
         {/* Notification */}
         {notification && (
           <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
@@ -537,53 +537,63 @@ export default function BrandPage() {
           </div>
         )}
 
-        <div>
+        {/* Main Content */}
+        <div className="flex-1 lg:pr-6">
           <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Brand Profile</h1>
-                <p className="text-gray-600 mt-1">Complete brand information for {organization.name}</p>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Brand Profile</h1>
+              <p className="text-gray-600 mt-1">Complete brand information for {organization.name}</p>
+            </div>
+          </div>
+          <BrandProfileView brandProfile={brandProfile} />
+        </div>
+
+        {/* Right Side Action Menu */}
+        <div className="w-full lg:w-64 flex-shrink-0 mt-6 lg:mt-0">
+          <div className="sticky top-6">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h3 className="text-sm font-medium text-gray-900">Actions</h3>
               </div>
-              <div className="flex gap-2">
+              <div className="p-3 space-y-2 grid grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-0 lg:space-y-2">
                 <button
                   onClick={handleExportPDF}
-                  className="inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                  className="w-full inline-flex items-center px-3 py-2.5 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                 >
-                  <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
+                  <DocumentArrowDownIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                   Export PDF
                 </button>
                 <button
                   onClick={handleCopyJSON}
-                  className="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full inline-flex items-center px-3 py-2.5 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
-                  <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
+                  <ClipboardDocumentIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                   Copy AI Brand
                 </button>
                 <button
                   onClick={handleCopyJSONWithPersonas}
-                  className="inline-flex items-center px-4 py-2 border border-teal-300 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full inline-flex items-center px-3 py-2.5 border border-teal-300 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors lg:col-span-1 col-span-2"
                 >
-                  <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
-                  Copy AI Brand w/Personas
+                  <ClipboardDocumentIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="text-left">Copy AI Brand w/Personas</span>
                 </button>
                 <button
                   onClick={handleEdit}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full inline-flex items-center px-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                 >
-                  <PencilIcon className="w-4 h-4 mr-2" />
+                  <PencilIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                   Edit Profile
                 </button>
                 <button
                   onClick={() => setShowDeleteDialog(true)}
-                  className="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                  className="w-full inline-flex items-center px-3 py-2.5 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
                 >
-                  <TrashIcon className="w-4 h-4 mr-2" />
+                  <TrashIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                   Delete Profile
                 </button>
               </div>
             </div>
           </div>
-          <BrandProfileView brandProfile={brandProfile} />
         </div>
 
         {/* Delete Confirmation Dialog */}

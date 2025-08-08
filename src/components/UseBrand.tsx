@@ -358,7 +358,6 @@ export default function UseBrand({ className = '' }: UseBrandProps) {
 
         {/* AI Platforms Grid */}
         <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-3">Open in AI Platform</h4>
           <div className="grid grid-cols-4 gap-2">
             {aiPlatforms.slice(0, 4).map((platform) => (
               <button

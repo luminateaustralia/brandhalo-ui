@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useUser, useOrganization } from '@clerk/nextjs';
 import { api } from '@/lib/api';
 import type { Customer } from '@/lib/api';
@@ -22,7 +22,7 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const refreshCustomers = async () => {
+  const refreshCustomers = useCallback(async () => {
     // Skip fetch during SSR to avoid Next.js headers errors
     if (typeof window === 'undefined') {
       console.warn('ApiContext: Skipping fetch during SSR');
@@ -47,7 +47,7 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isUserLoaded, user, isOrgLoaded, organization]);
 
   const startBrandCrawl = async (brand: string, url: string) => {
     try {
@@ -66,7 +66,7 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
       // For SSR, immediately set loading to false
       setLoading(false);
     }
-  }, [isUserLoaded, user, isOrgLoaded, organization]);
+  }, [refreshCustomers]);
 
   return (
     <ApiContext.Provider value={{ 

@@ -84,14 +84,12 @@ export default clerkMiddleware(async (auth, req) => {
     if (session.userId && !session.orgId) {
       try {
         // Check if user is already a member of any organizations
-        const userOrganizations = await clerkClient.users.getOrganizationMembershipList({
-          userId: session.userId,
-        });
+        const userOrganizations = await clerkClient.users.getOrganizationMembershipList({ userId: session.userId });
         
         // If user is already a member of organizations, let them through to dashboard
         // The dashboard can handle organization selection
-        if (userOrganizations.data && userOrganizations.data.length > 0) {
-          console.log(`User ${session.userId} is member of ${userOrganizations.data.length} organizations, allowing dashboard access`);
+        if (userOrganizations && userOrganizations.length > 0) {
+          console.log(`User ${session.userId} is member of ${userOrganizations.length} organizations, allowing dashboard access`);
           return; // Allow access to dashboard
         }
         

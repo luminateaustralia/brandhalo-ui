@@ -11,7 +11,6 @@ import {
   CheckIcon,
   PencilIcon,
   DocumentArrowDownIcon,
-  ClipboardDocumentIcon,
   TrashIcon,
   ExclamationTriangleIcon,
   ChevronDownIcon,
@@ -32,8 +31,7 @@ import MessagingStep from '@/components/brand/MessagingStep';
 import ComplianceStep from '@/components/brand/ComplianceStep';
 import BrandProfileView from '@/components/brand/BrandProfileView';
 import BrandGuidedSetup from '@/components/brand/BrandGuidedSetup';
-import { exportBrandToPDF, copyBrandToClipboard, copyBrandWithPersonasToClipboard } from '@/utils/brandExport';
-import { personas } from '@/lib/dummyData';
+import { exportBrandToPDF } from '@/utils/brandExport';
 
 // Default empty brand profile
 const getDefaultBrandProfile = (): BrandProfile => ({
@@ -377,62 +375,9 @@ export default function BrandPage() {
     }
   };
 
-  const handleCopyJSON = async () => {
-    if (!brandProfile) return;
-    
-    try {
-      await copyBrandToClipboard(brandProfile);
-      setNotification({ 
-        message: `Brand profile JSON copied to clipboard!`, 
-        type: 'success' 
-      });
-      setTimeout(() => setNotification(null), 3000);
-    } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      setNotification({ 
-        message: 'Failed to copy to clipboard. Please try again.', 
-        type: 'error' 
-      });
-      setTimeout(() => setNotification(null), 3000);
-    }
-  };
 
-  const handleCopyJSONWithPersonas = async () => {
-    if (!brandProfile) return;
-    
-    try {
-      // Clean personas data by removing the icon component for JSON serialization
-      const cleanPersonas = personas.map(persona => ({
-        id: persona.id,
-        name: persona.name,
-        age: persona.age,
-        occupation: persona.occupation,
-        location: persona.location,
-        income: persona.income,
-        image: persona.image,
-        description: persona.description,
-        goals: persona.goals,
-        painPoints: persona.painPoints,
-        preferredChannels: persona.preferredChannels,
-        buyingBehavior: persona.buyingBehavior,
-        color: persona.color
-      }));
 
-      await copyBrandWithPersonasToClipboard(brandProfile, cleanPersonas);
-      setNotification({ 
-        message: `Brand profile with personas JSON copied to clipboard!`, 
-        type: 'success' 
-      });
-      setTimeout(() => setNotification(null), 3000);
-    } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      setNotification({ 
-        message: 'Failed to copy to clipboard. Please try again.', 
-        type: 'error' 
-      });
-      setTimeout(() => setNotification(null), 3000);
-    }
-  };
+
 
   const handleDelete = async () => {
     if (!organization) return;
@@ -563,20 +508,7 @@ export default function BrandPage() {
                   <DocumentArrowDownIcon className="w-4 h-4 mr-2 flex-shrink-0" />
                   Export PDF
                 </button>
-                <button
-                  onClick={handleCopyJSON}
-                  className="w-full inline-flex items-center px-3 py-2.5 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  <ClipboardDocumentIcon className="w-4 h-4 mr-2 flex-shrink-0" />
-                  Copy AI Brand
-                </button>
-                <button
-                  onClick={handleCopyJSONWithPersonas}
-                  className="w-full inline-flex items-center px-3 py-2.5 border border-teal-300 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors lg:col-span-1 col-span-2"
-                >
-                  <ClipboardDocumentIcon className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-left">Copy AI Brand w/Personas</span>
-                </button>
+
                 <button
                   onClick={handleEdit}
                   className="w-full inline-flex items-center px-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"

@@ -17,7 +17,8 @@ const isDashboardRoute = createRouteMatcher([
 const isApiRoute = createRouteMatcher([
   '/api/customers/create',
   '/api/webhook(.*)',
-  '/api/brand(.*)'
+  '/api/brand(.*)',
+  '/api/chatgpt(.*)'
 ]);
 
 // Define Clerk internal routes that should be allowed

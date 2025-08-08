@@ -3,6 +3,17 @@ import type { BrandProfile } from '@/types/brand';
 import type { BrandVoice } from '@/types/brandVoice';
 import type { Persona } from '@/types/persona';
 
+// API Key types
+export interface ApiKey {
+  id: string;
+  organizationId: string;
+  keyHash: string;
+  name: string;
+  lastUsed: string | null;
+  createdAt: string;
+  isActive: boolean;
+}
+
 const client = createClient({
   url: 'libsql://bh-core-anthonyhook.aws-ap-northeast-1.turso.io',
   authToken: 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJleHAiOjE3NjE3MzgxMjMsImlhdCI6MTc1Mzk2MjEyMywiaWQiOiI2ODE1MWUzOS02NjYwLTRlZjEtOTQ5ZC00N2Q3MzMxMjJkOTkiLCJyaWQiOiI0Mzk0ZWRmYy00NzNkLTQxMmUtOWZjNC0xZWNmNzA3M2M2ZmYifQ.LKexOeVLhDO_bXeKmvnbzK0aQZa2-5kdymspsGWTZNJbk2BiNv1ytI0SMWD4vMBu4kzC48lthltR-p6uYL6LCA'
@@ -298,6 +309,103 @@ export async function deletePersona(id: string) {
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting persona:', error);
+    throw error;
+  }
+}
+
+// API Key management functions
+export async function saveApiKey(apiKey: ApiKey) {
+  try {
+    await client.execute({
+      sql: `
+        INSERT INTO api_keys (id, organization_id, key_hash, name, last_used, created_at, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+      args: [
+        apiKey.id,
+        apiKey.organizationId,
+        apiKey.keyHash,
+        apiKey.name,
+        apiKey.lastUsed,
+        apiKey.createdAt,
+        apiKey.isActive ? 1 : 0
+      ]
+    });
+    
+    console.log('✅ API key saved successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error saving API key:', error);
+    throw error;
+  }
+}
+
+export async function getApiKeys(organizationId: string): Promise<Omit<ApiKey, 'keyHash'>[]> {
+  try {
+    const result = await client.execute({
+      sql: 'SELECT id, organization_id, name, last_used, created_at, is_active FROM api_keys WHERE organization_id = ? ORDER BY created_at DESC',
+      args: [organizationId]
+    });
+    
+    return result.rows.map(row => ({
+      id: row.id as string,
+      organizationId: row.organization_id as string,
+      name: row.name as string,
+      lastUsed: row.last_used as string | null,
+      createdAt: row.created_at as string,
+      isActive: Boolean(row.is_active)
+    }));
+  } catch (error) {
+    console.error('❌ Error fetching API keys:', error);
+    throw error;
+  }
+}
+
+export async function validateApiKey(keyHash: string): Promise<string | null> {
+  try {
+    const result = await client.execute({
+      sql: 'SELECT organization_id FROM api_keys WHERE key_hash = ? AND is_active = 1',
+      args: [keyHash]
+    });
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    return result.rows[0].organization_id as string;
+  } catch (error) {
+    console.error('❌ Error validating API key:', error);
+    return null;
+  }
+}
+
+export async function updateApiKeyLastUsed(keyHash: string) {
+  try {
+    await client.execute({
+      sql: 'UPDATE api_keys SET last_used = datetime("now") WHERE key_hash = ?',
+      args: [keyHash]
+    });
+  } catch (error) {
+    console.error('❌ Error updating API key last used:', error);
+    // Don't throw here as this is not critical
+  }
+}
+
+export async function revokeApiKey(keyId: string, organizationId: string) {
+  try {
+    const result = await client.execute({
+      sql: 'UPDATE api_keys SET is_active = 0 WHERE id = ? AND organization_id = ?',
+      args: [keyId, organizationId]
+    });
+    
+    if (result.rowsAffected === 0) {
+      throw new Error('API key not found or access denied');
+    }
+    
+    console.log('✅ API key revoked successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error revoking API key:', error);
     throw error;
   }
 }

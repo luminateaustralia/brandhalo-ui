@@ -1,0 +1,326 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BrandHalo ChatGPT Integration",
+    "description": "Access your brand profile data from BrandHalo to get comprehensive brand information including company details, brand essence, personality, visuals, messaging, and more.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://brandhalo.com",
+      "description": "BrandHalo Production API"
+    }
+  ],
+  "paths": {
+    "/api/chatgpt/brand": {
+      "get": {
+        "operationId": "getBrandProfile",
+        "summary": "Retrieve brand profile",
+        "description": "Get comprehensive brand information including company details, brand essence, personality, visuals, target audience, messaging, and competitive landscape.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with brand profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand profile not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "description": "BrandHalo API key (format: bh_xxxxxxxx)"
+      }
+    },
+    "schemas": {
+      "BrandProfile": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Company name"
+              },
+              "industry": {
+                "type": "string",
+                "description": "Industry sector"
+              },
+              "website": {
+                "type": "string",
+                "description": "Company website URL"
+              },
+              "yearFounded": {
+                "type": "number",
+                "description": "Year the company was founded"
+              },
+              "size": {
+                "type": "string",
+                "description": "Company size (e.g., Small, Medium, Large)"
+              }
+            }
+          },
+          "brand": {
+            "type": "object",
+            "properties": {
+              "tagline": {
+                "type": "string",
+                "description": "Brand tagline or slogan"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Why the brand exists"
+              },
+              "mission": {
+                "type": "string",
+                "description": "Brand mission statement"
+              },
+              "vision": {
+                "type": "string",
+                "description": "Brand vision statement"
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Core brand values"
+              },
+              "promise": {
+                "type": "string",
+                "description": "What the brand consistently delivers to customers"
+              }
+            }
+          },
+          "personality": {
+            "type": "object",
+            "properties": {
+              "archetype": {
+                "type": "string",
+                "description": "Brand archetype (e.g., Explorer, Sage, Everyman)"
+              },
+              "traits": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Brand personality traits (e.g., Friendly, Innovative, Reliable)"
+              },
+              "voiceTone": {
+                "type": "object",
+                "properties": {
+                  "primary": {
+                    "type": "string",
+                    "description": "Primary brand voice tone"
+                  },
+                  "secondary": {
+                    "type": "string",
+                    "description": "Secondary brand voice tone"
+                  }
+                }
+              }
+            }
+          },
+          "visuals": {
+            "type": "object",
+            "properties": {
+              "primaryColors": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Color"
+                },
+                "description": "Primary brand colors"
+              },
+              "secondaryColors": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Color"
+                },
+                "description": "Secondary brand colors"
+              },
+              "typography": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Font"
+                },
+                "description": "Brand typography"
+              },
+              "imageStyle": {
+                "type": "string",
+                "description": "Description of brand image style"
+              }
+            }
+          },
+          "targetAudience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceSegment"
+            },
+            "description": "Target audience segments"
+          },
+          "messaging": {
+            "type": "object",
+            "properties": {
+              "elevatorPitch": {
+                "type": "string",
+                "description": "Brief elevator pitch"
+              },
+              "keyMessages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Key brand messages"
+              },
+              "doNotSay": {
+                "type": "string",
+                "description": "Words or phrases to avoid in brand communications"
+              }
+            }
+          },
+          "competitors": {
+            "type": "object",
+            "properties": {
+              "primary": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Competitor"
+                },
+                "description": "Primary competitors"
+              },
+              "differentiators": {
+                "type": "string",
+                "description": "What differentiates this brand from competitors"
+              }
+            }
+          },
+          "compliance": {
+            "type": "object",
+            "properties": {
+              "guidelines": {
+                "type": "string",
+                "description": "URL to brand guidelines document"
+              },
+              "trademark": {
+                "type": "string",
+                "description": "Trademark status"
+              },
+              "notes": {
+                "type": "string",
+                "description": "Additional compliance notes"
+              }
+            }
+          }
+        }
+      },
+      "Color": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Color name"
+          },
+          "hex": {
+            "type": "string",
+            "description": "Hex color code"
+          }
+        }
+      },
+      "Font": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Font name"
+          },
+          "usage": {
+            "type": "string",
+            "description": "Usage context (e.g., Headings, Body text)"
+          }
+        }
+      },
+      "AudienceSegment": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Audience segment name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Segment description"
+          },
+          "keyNeeds": {
+            "type": "string",
+            "description": "Key needs of this audience"
+          },
+          "demographics": {
+            "type": "string",
+            "description": "Demographic information"
+          }
+        }
+      },
+      "Competitor": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Competitor name"
+          },
+          "website": {
+            "type": "string",
+            "description": "Competitor website"
+          },
+          "positioning": {
+            "type": "string",
+            "description": "Competitor positioning"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      }
+    }
+  }
+}

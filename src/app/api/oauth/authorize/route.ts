@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { saveApiKey, type ApiKey } from '@/lib/db';
 
 export const runtime = 'edge';
 
@@ -12,21 +11,7 @@ function generateAuthCode(): string {
     .join('');
 }
 
-// Generate a secure random UUID
-function generateUUID(): string {
-  const randomBytes = crypto.getRandomValues(new Uint8Array(16));
-  const hexString = Array.from(randomBytes)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-  
-  return [
-    hexString.slice(0, 8),
-    hexString.slice(8, 12),
-    hexString.slice(12, 16),
-    hexString.slice(16, 20),
-    hexString.slice(20, 32)
-  ].join('-');
-}
+
 
 // Store authorization codes temporarily (in production, use Redis or database)
 const authCodes = new Map<string, {

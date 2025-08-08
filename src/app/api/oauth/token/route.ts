@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-// Utility function to hash API keys using Web Crypto API
-async function hashApiKey(key: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(key);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+
 
 // Generate a secure access token using Web Crypto API
 function generateAccessToken(): string {
@@ -29,33 +22,41 @@ function generateRefreshToken(): string {
 
 // Access authorization codes from the authorize endpoint
 // In production, this should be shared storage (Redis/database)
-declare global {
-  var authCodes: Map<string, {
+
+// Type-safe global state management
+interface GlobalState {
+  authCodes?: Map<string, {
     code: string;
     organizationId: string;
     clientId: string;
     redirectUri: string;
     scope: string;
     expiresAt: number;
-  }> | undefined;
+  }>;
+  accessTokens?: Map<string, {
+    token: string;
+    organizationId: string;
+    clientId: string;
+    scope: string;
+    expiresAt: number;
+    refreshToken: string;
+  }>;
 }
+
+const globalState = globalThis as typeof globalThis & GlobalState;
 
 // Initialize the global authCodes if it doesn't exist
-if (typeof globalThis !== 'undefined' && !globalThis.authCodes) {
-  globalThis.authCodes = new Map();
+if (!globalState.authCodes) {
+  globalState.authCodes = new Map();
 }
 
-const authCodes = globalThis.authCodes!;
+// Initialize the global accessTokens if it doesn't exist
+if (!globalState.accessTokens) {
+  globalState.accessTokens = new Map();
+}
 
-// Store access tokens (in production, use database)
-const accessTokens = new Map<string, {
-  token: string;
-  organizationId: string;
-  clientId: string;
-  scope: string;
-  expiresAt: number;
-  refreshToken: string;
-}>();
+const authCodes = globalState.authCodes;
+const accessTokens = globalState.accessTokens;
 
 // POST - OAuth token endpoint
 export async function POST(request: NextRequest) {
@@ -67,7 +68,6 @@ export async function POST(request: NextRequest) {
     const code = formData.get('code')?.toString();
     const redirectUri = formData.get('redirect_uri')?.toString();
     const clientId = formData.get('client_id')?.toString();
-    const clientSecret = formData.get('client_secret')?.toString();
 
     // Validate grant type
     if (grantType !== 'authorization_code') {
@@ -150,5 +150,5 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export the access tokens map for use in other modules
-export { accessTokens };
+// Note: accessTokens map is available in this module for token validation
+// In production, this should be stored in a database or Redis

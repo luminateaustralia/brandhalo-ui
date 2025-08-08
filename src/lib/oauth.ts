@@ -1,23 +1,21 @@
 // OAuth 2.0 utilities for BrandHalo ChatGPT integration
 
-// Import access tokens from the token endpoint
+// Access tokens from global storage (shared with token endpoint)
 // Note: In production, this should be a shared database/Redis store
-let accessTokens: Map<string, {
-  token: string;
-  organizationId: string;
-  clientId: string;
-  scope: string;
-  expiresAt: number;
-  refreshToken: string;
-}>;
 
-// Initialize the access tokens map
-if (typeof globalThis !== 'undefined') {
-  if (!globalThis.accessTokens) {
-    globalThis.accessTokens = new Map();
-  }
-  accessTokens = globalThis.accessTokens;
+// Type-safe global state management
+interface GlobalState {
+  accessTokens?: Map<string, {
+    token: string;
+    organizationId: string;
+    clientId: string;
+    scope: string;
+    expiresAt: number;
+    refreshToken: string;
+  }>;
 }
+
+const globalState = globalThis as typeof globalThis & GlobalState;
 
 export interface OAuthTokenData {
   token: string;
@@ -41,14 +39,14 @@ export async function validateOAuthToken(authHeader: string): Promise<string | n
   // Handle both OAuth tokens (bht_) and legacy API keys (bh_)
   if (token.startsWith('bht_')) {
     // OAuth access token
-    const tokenData = accessTokens?.get(token);
+    const tokenData = globalState.accessTokens?.get(token);
     if (!tokenData) {
       return null;
     }
 
     // Check if token has expired
     if (Date.now() > tokenData.expiresAt) {
-      accessTokens?.delete(token);
+      globalState.accessTokens?.delete(token);
       return null;
     }
 
@@ -87,14 +85,14 @@ export async function checkScope(authHeader: string, requiredScope: string): Pro
   const token = authHeader.substring(7);
 
   if (token.startsWith('bht_')) {
-    const tokenData = accessTokens?.get(token);
+    const tokenData = globalState.accessTokens?.get(token);
     if (!tokenData) {
       return false;
     }
 
     // Check if token has expired
     if (Date.now() > tokenData.expiresAt) {
-      accessTokens?.delete(token);
+      globalState.accessTokens?.delete(token);
       return false;
     }
 

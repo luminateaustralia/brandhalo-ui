@@ -7,7 +7,7 @@ export const runtime = 'edge';
 // Authentication now handled by OAuth middleware
 
 // MCP Server communication
-async function callMCPServer(tool: string, params: any, organizationId: string) {
+async function callMCPServer(tool: string, params: Record<string, unknown>, organizationId: string) {
   const { getBrandProfile } = await import('@/lib/db');
 
   const brandProfile = await getBrandProfile(organizationId);

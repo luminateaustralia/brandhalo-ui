@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { accessTokens } from '../token/route';
 
 export const runtime = 'edge';
+
+// Access tokens from global storage (shared with token endpoint)
+
+// Type-safe global state management
+interface GlobalState {
+  accessTokens?: Map<string, {
+    token: string;
+    organizationId: string;
+    clientId: string;
+    scope: string;
+    expiresAt: number;
+    refreshToken: string;
+  }>;
+}
+
+const globalState = globalThis as typeof globalThis & GlobalState;
 
 // GET - OAuth userinfo endpoint
 export async function GET(request: NextRequest) {
@@ -20,7 +35,7 @@ export async function GET(request: NextRequest) {
     const accessToken = authHeader.substring(7);
 
     // Validate access token
-    const tokenData = accessTokens.get(accessToken);
+    const tokenData = globalState.accessTokens?.get(accessToken);
     if (!tokenData) {
       return NextResponse.json({
         error: 'invalid_token',
@@ -30,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     // Check if token has expired
     if (Date.now() > tokenData.expiresAt) {
-      accessTokens.delete(accessToken);
+      globalState.accessTokens?.delete(accessToken);
       return NextResponse.json({
         error: 'invalid_token',
         error_description: 'Access token has expired'

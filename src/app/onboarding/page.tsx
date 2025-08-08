@@ -15,6 +15,14 @@ function OnboardingContent() {
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedCreation, setHasAttemptedCreation] = useState(false);
 
+  // Redirect to dashboard if user already has an organization
+  useEffect(() => {
+    if (isOrgLoaded && organization) {
+      router.push('/dashboard');
+      return;
+    }
+  }, [isOrgLoaded, organization, router]);
+
   // Create customer record in API when organization is created
   useEffect(() => {
     if (!isOrgLoaded || !organization || isCreatingCustomer || hasAttemptedCreation) {

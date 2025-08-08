@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useUser, useOrganization } from '@clerk/nextjs';
 import { api } from '@/lib/api';
 import type { Customer } from '@/lib/api';
 
@@ -15,6 +16,8 @@ interface ApiContextType {
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
 export function ApiProvider({ children }: { children: React.ReactNode }) {
+  const { isLoaded: isUserLoaded, user } = useUser();
+  const { isLoaded: isOrgLoaded, organization } = useOrganization();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -23,6 +26,13 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
     // Skip fetch during SSR to avoid Next.js headers errors
     if (typeof window === 'undefined') {
       console.warn('ApiContext: Skipping fetch during SSR');
+      return;
+    }
+    
+    // Don't fetch customers if user isn't loaded, not authenticated, or has no organization
+    if (!isUserLoaded || !user || !isOrgLoaded || !organization) {
+      console.warn('ApiContext: Skipping customers fetch - user not authenticated or no organization');
+      setLoading(false);
       return;
     }
     
@@ -49,14 +59,14 @@ export function ApiProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Only fetch data client-side
+    // Only fetch data client-side and when user/org data is loaded
     if (typeof window !== 'undefined') {
       refreshCustomers();
     } else {
       // For SSR, immediately set loading to false
       setLoading(false);
     }
-  }, []);
+  }, [isUserLoaded, user, isOrgLoaded, organization]);
 
   return (
     <ApiContext.Provider value={{ 

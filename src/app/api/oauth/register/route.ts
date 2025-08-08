@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Generate client credentials
     const client_id = generateClientId();
-    const client_secret = null; // Public client per MCP spec
+    const client_secret = ""; // Empty string for public clients (ChatGPT expects string type)
     
     // Store client registration
     const clientData = {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Return registration response per RFC 7591
     const response = {
       client_id,
-      client_secret, // null for public clients
+      client_secret, // Empty string for public clients
       client_name,
       redirect_uris,
       grant_types,

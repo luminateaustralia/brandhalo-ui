@@ -23,6 +23,12 @@ const isApiRoute = createRouteMatcher([
   '/api/oauth(.*)'
 ]);
 
+// Define OAuth discovery routes that should be publicly accessible
+const isOAuthDiscoveryRoute = createRouteMatcher([
+  '/.well-known/oauth-authorization-server',
+  '/.well-known/(.*)'
+]);
+
 // Define Clerk internal routes that should be allowed
 const isClerkRoute = createRouteMatcher([
   '/api/auth(.*)',
@@ -41,6 +47,11 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   // Allow public routes without authentication
   if (isPublicRoute(req)) {
+    return;
+  }
+
+  // Allow OAuth discovery routes (must be publicly accessible)
+  if (isOAuthDiscoveryRoute(req)) {
     return;
   }
 

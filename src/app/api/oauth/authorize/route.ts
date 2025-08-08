@@ -21,6 +21,8 @@ const authCodes = new Map<string, {
   redirectUri: string;
   scope: string;
   expiresAt: number;
+  codeChallenge?: string;
+  codeChallengeMethod?: string;
 }>();
 
 // GET - OAuth authorization endpoint
@@ -37,6 +39,8 @@ export async function GET(request: NextRequest) {
     const redirectUri = url.searchParams.get('redirect_uri');
     const scope = url.searchParams.get('scope') || 'brand:read';
     const state = url.searchParams.get('state');
+    const codeChallenge = url.searchParams.get('code_challenge') || undefined;
+    const codeChallengeMethod = url.searchParams.get('code_challenge_method') || undefined;
 
     // Validate OAuth parameters
     if (responseType !== 'code') {
@@ -54,7 +58,27 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate client (accept ChatGPT, OpenAI, and development clients)
+    // Validate client - check if it's a registered client or known pattern
+    // Import the module to initialize the global state
+    await import('../register/route');
+    
+    // Access the global state directly
+    interface GlobalClientState {
+      registeredClients?: Map<string, {
+        client_id: string;
+        client_name?: string;
+        redirect_uris: string[];
+        grant_types: string[];
+        response_types: string[];
+        scope?: string;
+        created_at: number;
+      }>;
+    }
+    
+    const clientGlobalState = globalThis as typeof globalThis & GlobalClientState;
+    const registeredClient = clientGlobalState.registeredClients?.get(clientId);
+    
+    // Check for registered client or fallback to pattern matching
     const validClientPatterns = [
       'chatgpt',
       'openai', 
@@ -65,15 +89,27 @@ export async function GET(request: NextRequest) {
       'test'
     ];
     
-    const isValidClient = validClientPatterns.some(pattern => 
+    const isPatternMatch = validClientPatterns.some(pattern => 
       clientId.toLowerCase().includes(pattern.toLowerCase())
     );
+    
+    const isValidClient = registeredClient || isPatternMatch;
     
     if (!isValidClient) {
       console.log(`Invalid client_id: ${clientId}`);
       const errorUrl = new URL(redirectUri);
       errorUrl.searchParams.set('error', 'invalid_client');
-      errorUrl.searchParams.set('error_description', 'Invalid client_id');
+      errorUrl.searchParams.set('error_description', 'Invalid client_id. Use dynamic registration or contact support.');
+      if (state) errorUrl.searchParams.set('state', state);
+      return NextResponse.redirect(errorUrl);
+    }
+
+    // For registered clients, validate redirect URI
+    if (registeredClient && !registeredClient.redirect_uris.includes(redirectUri)) {
+      console.log(`Invalid redirect_uri for registered client: ${redirectUri}`);
+      const errorUrl = new URL(redirectUri);
+      errorUrl.searchParams.set('error', 'invalid_request');
+      errorUrl.searchParams.set('error_description', 'Invalid redirect_uri for this client');
       if (state) errorUrl.searchParams.set('state', state);
       return NextResponse.redirect(errorUrl);
     }
@@ -98,7 +134,9 @@ export async function GET(request: NextRequest) {
       clientId,
       redirectUri,
       scope,
-      expiresAt
+      expiresAt,
+      codeChallenge,
+      codeChallengeMethod
     });
 
     console.log('🔐 Authorization code generated for org:', authResult.orgId);

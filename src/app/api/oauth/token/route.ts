@@ -32,6 +32,8 @@ interface GlobalState {
     redirectUri: string;
     scope: string;
     expiresAt: number;
+    codeChallenge?: string;
+    codeChallengeMethod?: string;
   }>;
   accessTokens?: Map<string, {
     token: string;
@@ -68,6 +70,7 @@ export async function POST(request: NextRequest) {
     const code = formData.get('code')?.toString();
     const redirectUri = formData.get('redirect_uri')?.toString();
     const clientId = formData.get('client_id')?.toString();
+    const codeVerifier = formData.get('code_verifier')?.toString();
 
     // Validate grant type
     if (grantType !== 'authorization_code') {
@@ -109,6 +112,36 @@ export async function POST(request: NextRequest) {
         error: 'invalid_grant',
         error_description: 'Client ID or redirect URI mismatch'
       }, { status: 400 });
+    }
+
+    // Validate PKCE code verifier if code challenge was provided
+    if (authData.codeChallenge) {
+      if (!codeVerifier) {
+        return NextResponse.json({
+          error: 'invalid_request',
+          error_description: 'Code verifier required for PKCE'
+        }, { status: 400 });
+      }
+
+      // Verify code challenge
+      let expectedChallenge = codeVerifier;
+      if (authData.codeChallengeMethod === 'S256') {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        expectedChallenge = btoa(String.fromCharCode(...hashArray))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=/g, '');
+      }
+
+      if (expectedChallenge !== authData.codeChallenge) {
+        return NextResponse.json({
+          error: 'invalid_grant',
+          error_description: 'Invalid code verifier'
+        }, { status: 400 });
+      }
     }
 
     // Generate access token and refresh token

@@ -59,8 +59,20 @@ export async function GET(request: NextRequest) {
           "BearerAuth": {
             "type": "http",
             "scheme": "bearer",
-            "bearerFormat": "API Key",
-            "description": "BrandHalo API key (format: bh_xxxxxxxx)"
+            "bearerFormat": "JWT",
+            "description": "OAuth 2.0 access token or BrandHalo API key"
+          },
+          "OAuth2": {
+            "type": "oauth2",
+            "flows": {
+              "authorizationCode": {
+                "authorizationUrl": `${request.nextUrl.origin}/api/oauth/authorize`,
+                "tokenUrl": `${request.nextUrl.origin}/api/oauth/token`,
+                "scopes": {
+                  "brand:read": "Read brand profile information"
+                }
+              }
+            }
           }
         },
         "schemas": {

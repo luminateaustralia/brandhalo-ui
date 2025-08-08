@@ -1,50 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiKey, updateApiKeyLastUsed } from '@/lib/db';
+import { validateOAuthToken } from '@/lib/oauth';
 import type { ColorInfo, FontInfo, AudienceSegment, Competitor } from '@/types/brand';
 
 export const runtime = 'edge';
 
-// Utility function to hash API keys using Web Crypto API
-async function hashApiKey(key: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(key);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Authenticate API key and return organization ID
-async function authenticateApiKey(apiKey: string): Promise<string | null> {
-  if (!apiKey || !apiKey.startsWith('bh_')) {
-    return null;
-  }
-
-  try {
-    const keyHash = await hashApiKey(apiKey);
-    const organizationId = await validateApiKey(keyHash);
-    
-    if (organizationId) {
-      await updateApiKeyLastUsed(keyHash);
-    }
-    
-    return organizationId;
-  } catch (error) {
-    console.error('Error authenticating API key:', error);
-    return null;
-  }
-}
+// Authentication now handled by OAuth middleware
 
 // MCP Server communication
-async function callMCPServer(tool: string, params: Record<string, unknown>, apiKey: string) {
-  // In a real implementation, this would communicate with your MCP server
-  // For now, we'll simulate the MCP server response by calling our existing logic
-  
+async function callMCPServer(tool: string, params: any, organizationId: string) {
   const { getBrandProfile } = await import('@/lib/db');
-  const organizationId = await authenticateApiKey(apiKey);
-  
-  if (!organizationId) {
-    throw new Error('Invalid API key');
-  }
 
   const brandProfile = await getBrandProfile(organizationId);
   if (!brandProfile) {
@@ -137,15 +101,22 @@ export async function POST(request: NextRequest) {
   console.log('🔗 ChatGPT MCP Connector called');
   
   try {
-    // Extract API key from Authorization header
+    // Extract and validate OAuth token or API key from Authorization header
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ 
-        error: 'Missing or invalid Authorization header. Expected: Bearer <api_key>' 
+        error: 'Missing or invalid Authorization header. Expected: Bearer <token>' 
       }, { status: 401 });
     }
 
-    const apiKey = authHeader.substring(7);
+    // Validate OAuth token or legacy API key
+    const organizationId = await validateOAuthToken(authHeader);
+    if (!organizationId) {
+      return NextResponse.json({ 
+        error: 'Invalid or expired access token' 
+      }, { status: 401 });
+    }
+
     const body = await request.json();
     
     // Validate request format
@@ -160,7 +131,7 @@ export async function POST(request: NextRequest) {
     console.log('🛠️ MCP Tool call:', toolName, toolArgs);
 
     // Call MCP server (or simulate it)
-    const result = await callMCPServer(toolName, toolArgs, apiKey);
+    const result = await callMCPServer(toolName, toolArgs, organizationId);
 
     return NextResponse.json({
       success: true,
@@ -172,7 +143,7 @@ export async function POST(request: NextRequest) {
     console.error('Error in MCP connector:', error);
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const statusCode = errorMessage.includes('Invalid API key') ? 401 :
+    const statusCode = errorMessage.includes('Invalid') ? 401 :
                       errorMessage.includes('not found') ? 404 : 500;
 
     return NextResponse.json({ 

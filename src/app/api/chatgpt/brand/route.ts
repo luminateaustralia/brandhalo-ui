@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBrandProfile, initDatabase, validateApiKey, updateApiKeyLastUsed } from '@/lib/db';
+import { getBrandProfile, initDatabase } from '@/lib/db';
+import { validateOAuthToken } from '@/lib/oauth';
 import type { ColorInfo, FontInfo, AudienceSegment, Competitor } from '@/types/brand';
 
 export const runtime = 'edge';
@@ -7,56 +8,30 @@ export const runtime = 'edge';
 // Initialize database on first load
 initDatabase();
 
-// Utility function to hash API keys for comparison using Web Crypto API
-async function hashApiKey(key: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(key);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Utility function to authenticate API key
-async function authenticateApiKey(apiKey: string): Promise<string | null> {
-  if (!apiKey || !apiKey.startsWith('bh_')) {
-    return null;
-  }
-
-  const keyHash = await hashApiKey(apiKey);
-  const organizationId = await validateApiKey(keyHash);
-  
-  if (organizationId) {
-    // Update last used timestamp
-    await updateApiKeyLastUsed(keyHash);
-  }
-  
-  return organizationId;
-}
+// Authentication now handled by OAuth middleware
 
 // GET - Retrieve brand profile using API key authentication
 export async function GET(request: NextRequest) {
   console.log('🤖 ChatGPT Brand API called');
   
   try {
-    // Extract API key from Authorization header
+    // Extract and validate OAuth token or API key from Authorization header
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ 
-        error: 'Missing or invalid Authorization header. Expected: Bearer <api_key>' 
+        error: 'Missing or invalid Authorization header. Expected: Bearer <token>' 
       }, { status: 401 });
     }
-
-    const apiKey = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    // Authenticate the API key
-    const organizationId = await authenticateApiKey(apiKey);
+    // Validate OAuth token or legacy API key
+    const organizationId = await validateOAuthToken(authHeader);
     if (!organizationId) {
       return NextResponse.json({ 
-        error: 'Invalid or inactive API key' 
+        error: 'Invalid or expired access token' 
       }, { status: 401 });
     }
 
-    console.log('🤖 Valid API key for organization:', organizationId);
+    console.log('🤖 Valid token for organization:', organizationId);
 
     // Retrieve brand profile
     const brandProfile = await getBrandProfile(organizationId);

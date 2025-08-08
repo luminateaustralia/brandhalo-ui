@@ -14,8 +14,10 @@ export async function GET(request: NextRequest) {
       "description_for_model": "Access comprehensive brand profile data from BrandHalo including company information, brand essence, personality, visuals, messaging, target audience, and competitive landscape. Use this to get brand-consistent information for content creation, marketing materials, and brand analysis.",
       "description_for_human": "Retrieve your BrandHalo brand profile data to ensure brand-consistent communications and content.",
       "auth": {
-        "type": "bearer",
-        "instructions": "Use your BrandHalo API key (format: bh_xxxxxxxx) which you can generate at /dashboard/settings/chatgpt"
+        "type": "oauth2",
+        "oauth_url": `${request.nextUrl.origin}/api/oauth/authorize`,
+        "scope": "brand:read",
+        "instructions": "Authenticate with your BrandHalo account to access brand data"
       },
       "api": {
         "type": "openapi",

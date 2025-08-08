@@ -91,6 +91,55 @@ async function callMCPServer(tool: string, params: Record<string, unknown>, orga
     case 'get_target_audience':
       return brandData.targetAudience.filter((audience: AudienceSegment) => audience.name);
 
+    // Required MCP tools for ChatGPT compatibility
+    case 'search':
+      // Search within brand data based on query
+      const query = params.query as string;
+      if (!query) {
+        return { error: 'Search query is required' };
+      }
+      
+      const searchResults = [];
+      const lowerQuery = query.toLowerCase();
+      
+      // Search in brand essence
+      if (brandData.brandEssence.tagline?.toLowerCase().includes(lowerQuery)) {
+        searchResults.push({ type: 'tagline', content: brandData.brandEssence.tagline });
+      }
+      if (brandData.brandEssence.brandPurpose?.toLowerCase().includes(lowerQuery)) {
+        searchResults.push({ type: 'purpose', content: brandData.brandEssence.brandPurpose });
+      }
+      
+      // Search in messaging
+      brandData.messaging.keyMessages.forEach((message: string, index: number) => {
+        if (message.toLowerCase().includes(lowerQuery)) {
+          searchResults.push({ type: 'key_message', content: message, index });
+        }
+      });
+      
+      return { query, results: searchResults };
+
+    case 'fetch':
+      // Fetch specific brand data by URL or identifier
+      const url = params.url as string;
+      const dataType = params.type as string;
+      
+      if (dataType === 'brand_profile') {
+        return {
+          company: {
+            name: brandData.companyInfo.companyName,
+            industry: brandData.companyInfo.industry,
+            website: brandData.companyInfo.website
+          },
+          brand: {
+            tagline: brandData.brandEssence.tagline,
+            purpose: brandData.brandEssence.brandPurpose
+          }
+        };
+      }
+      
+      return { url, type: dataType, data: 'Fetch completed' };
+
     default:
       throw new Error(`Unknown tool: ${tool}`);
   }
@@ -166,12 +215,14 @@ export async function GET() {
         'get_brand_profile',
         'get_brand_summary', 
         'get_brand_voice_guide',
-        'get_target_audience'
+        'get_target_audience',
+        'search',
+        'fetch'
       ]
     },
     authentication: {
-      type: 'bearer',
-      format: 'bh_xxxxxxxx'
+      type: 'oauth2',
+      format: 'Bearer <access_token>'
     },
     endpoints: {
       mcp_calls: '/api/mcp/connector',

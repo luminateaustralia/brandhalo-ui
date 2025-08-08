@@ -125,13 +125,29 @@ export async function GET(request: NextRequest) {
                       "get_brand_profile",
                       "get_brand_summary",
                       "get_brand_voice_guide",
-                      "get_target_audience"
+                      "get_target_audience",
+                      "search",
+                      "fetch"
                     ],
                     "description": "Name of the MCP tool to execute"
                   },
                   "arguments": {
                     "type": "object",
-                    "description": "Arguments for the tool (optional)"
+                    "description": "Arguments for the tool (optional)",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "description": "Search query for the search tool"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "URL to fetch for the fetch tool"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Type of data to fetch"
+                      }
+                    }
                   }
                 }
               }

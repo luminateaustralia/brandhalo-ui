@@ -12,7 +12,7 @@ import {
   UserGroupIcon,
   ShieldCheckIcon,
   Cog6ToothIcon,
-
+  KeyIcon,
   GlobeAltIcon,
   ChartBarIcon,
   SpeakerWaveIcon
@@ -146,6 +146,15 @@ export default function Sidebar() {
           >
             <ShieldCheckIcon className="w-5 h-5" />
             {!isCollapsed && <span className="ml-3">Compliance</span>}
+          </Link>
+          <Link
+            href="/dashboard/settings/chatgpt"
+            className={`flex items-center ${
+              isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
+            } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
+          >
+            <KeyIcon className="w-5 h-5" />
+            {!isCollapsed && <span className="ml-3">Integration</span>}
           </Link>
         </div>
 

@@ -2,18 +2,15 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useUser, useOrganization, CreateOrganization } from '@clerk/nextjs';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Image from 'next/image';
 
-// Component to handle search params with Suspense
+// Component to handle onboarding with Suspense
 function OnboardingContent() {
   const { isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const stepParam = searchParams.get('step');
-  const [step, setStep] = useState(stepParam === '2' ? 2 : 1);
   const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedCreation, setHasAttemptedCreation] = useState(false);
@@ -70,12 +67,6 @@ function OnboardingContent() {
     createCustomerRecord();
   }, [isOrgLoaded, organization, router, isCreatingCustomer, hasAttemptedCreation]);
 
-  useEffect(() => {
-    if (stepParam === '2') {
-      setStep(2);
-    }
-  }, [stepParam]);
-
   if (!isUserLoaded || !isOrgLoaded) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -101,33 +92,17 @@ function OnboardingContent() {
                 <Image src="/Logo.svg" alt="BrandHalo" width={205} height={48} />
               </div>
               
-              {step === 1 && (
-                <div>
-                  <span className="inline-block text-[#8777E7] font-semibold text-sm mb-3">
-                    STEP 1 OF 2
-                  </span>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    Create your organisation
-                  </h1>
-                  <p className="text-xl text-gray-600">
-                    Fill out the form to set up your organisation and get started with BrandHalo.
-                  </p>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div>
-                  <span className="inline-block text-[#8777E7] font-semibold text-sm mb-3">
-                    COMPLETE
-                  </span>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    You&apos;re all set!
-                  </h1>
-                  <p className="text-xl text-gray-600">
-                    Your organisation has been created successfully. Click the button to access your dashboard.
-                  </p>
-                </div>
-              )}
+              <div>
+                <span className="inline-block text-[#8777E7] font-semibold text-sm mb-3">
+                  GET STARTED
+                </span>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  Create your organisation
+                </h1>
+                <p className="text-xl text-gray-600">
+                  Set up your organisation to get started with BrandHalo.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -168,43 +143,20 @@ function OnboardingContent() {
                 </div>
               )}
 
-              {/* Step 1: Create Organization */}
-              {step === 1 && (
-                <CreateOrganization 
-                  afterCreateOrganizationUrl="/onboarding"
-                  hideSlug={true}
-                  appearance={{
-                    elements: {
-                      rootBox: "w-full",
-                      card: "bg-white shadow-xl",
-                      headerTitle: "hidden",
-                      headerSubtitle: "hidden",
-                      formButtonPrimary: "bg-[#8777E7] hover:bg-[#7667d7]",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Step 2: Completion */}
-              {step === 2 && (
-                <div className="text-center">
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#8777E7]/10 mb-4">
-                    <svg className="h-6 w-6 text-[#8777E7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Setup complete!</h2>
-                  <p className="text-gray-600 mb-6">
-                    You&apos;re all set to start using BrandHalo.
-                  </p>
-                  <button
-                    onClick={() => router.push('/dashboard')}
-                    className="w-full px-6 py-3 bg-[#8777E7] text-white font-medium rounded-lg hover:bg-[#7667d7] transition-colors"
-                  >
-                    Go to Dashboard
-                  </button>
-                </div>
-              )}
+              {/* Organization Creation */}
+              <CreateOrganization 
+                afterCreateOrganizationUrl="/onboarding"
+                hideSlug={true}
+                appearance={{
+                  elements: {
+                    rootBox: "w-full",
+                    card: "bg-white shadow-xl",
+                    headerTitle: "hidden",
+                    headerSubtitle: "hidden",
+                    formButtonPrimary: "bg-[#8777E7] hover:bg-[#7667d7]",
+                  },
+                }}
+              />
             </div>
           </div>
         </div>
@@ -224,4 +176,4 @@ export default function OnboardingPage() {
       <OnboardingContent />
     </Suspense>
   );
-} 
+}

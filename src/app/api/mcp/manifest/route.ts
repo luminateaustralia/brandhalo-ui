@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
         "type": "oauth2",
         "oauth_url": `${request.nextUrl.origin}/api/oauth/authorize`,
         "token_url": `${request.nextUrl.origin}/api/oauth/token`,
+        "userinfo_url": `${request.nextUrl.origin}/api/oauth/userinfo`,
+        "discovery_url": `${request.nextUrl.origin}/api/oauth/.well-known/oauth-authorization-server`,
         "scope": "brand:read",
         "instructions": "Authenticate with your BrandHalo account to access brand data"
       },

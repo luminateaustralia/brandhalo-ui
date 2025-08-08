@@ -26,6 +26,9 @@ const authCodes = new Map<string, {
 // GET - OAuth authorization endpoint
 export async function GET(request: NextRequest) {
   console.log('🔐 OAuth authorization request received');
+  console.log('Full URL:', request.url);
+  console.log('Query params:', Object.fromEntries(new URL(request.url).searchParams.entries()));
+  console.log('Headers:', Object.fromEntries(request.headers.entries()));
   
   try {
     const url = new URL(request.url);
@@ -114,4 +117,17 @@ export async function GET(request: NextRequest) {
       error_description: 'Internal server error during authorization'
     }, { status: 500 });
   }
+}
+
+// OPTIONS - Handle preflight requests for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }

@@ -18,7 +18,8 @@ const isApiRoute = createRouteMatcher([
   '/api/customers/create',
   '/api/webhook(.*)',
   '/api/brand(.*)',
-  '/api/chatgpt(.*)'
+  '/api/chatgpt(.*)',
+  '/api/mcp(.*)'
 ]);
 
 // Define Clerk internal routes that should be allowed

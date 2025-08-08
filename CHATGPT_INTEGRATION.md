@@ -14,13 +14,14 @@ The integration follows OpenAI's best practices and enables ChatGPT users to:
 ### Architecture
 
 ```
-ChatGPT → OpenAI Actions → BrandHalo API → Database
+ChatGPT → OpenAI Actions/MCP Connector → BrandHalo API → Database
 ```
 
-1. **ChatGPT Actions**: Uses OpenAI's Actions framework with custom schema
-2. **API Key Authentication**: Secure Bearer token authentication 
-3. **Brand Data API**: Dedicated endpoint optimized for ChatGPT consumption
-4. **User Management**: UI for users to generate and manage API keys
+1. **ChatGPT Actions**: HTTP API integration with custom schema
+2. **ChatGPT MCP Connector**: Native MCP protocol integration
+3. **API Key Authentication**: Secure Bearer token authentication 
+4. **Brand Data API**: Dedicated endpoints optimized for ChatGPT consumption
+5. **User Management**: UI for users to generate and manage API keys
 
 ### API Endpoints
 
@@ -29,11 +30,14 @@ ChatGPT → OpenAI Actions → BrandHalo API → Database
 - **GET**: List organization's API keys  
 - **DELETE**: Revoke API key
 
-#### 2. Brand Data Access (`/api/chatgpt/brand`)
-- **GET**: Retrieve brand profile using API key authentication
+#### 2. ChatGPT Actions (`/api/chatgpt/`)
+- **GET** `/api/chatgpt/brand`: Retrieve brand profile
+- **GET** `/api/chatgpt/manifest`: OpenAI Actions schema
 
-#### 3. OpenAI Actions Manifest (`/api/chatgpt/manifest`)
-- **GET**: Serve OpenAI Actions schema definition
+#### 3. ChatGPT MCP Connector (`/api/mcp/`)
+- **GET** `/api/mcp/manifest`: MCP connector manifest
+- **GET** `/api/mcp/openapi.json`: OpenAPI specification
+- **POST** `/api/mcp/connector`: Execute MCP tools
 
 ### Security Features
 
@@ -63,8 +67,8 @@ CREATE TABLE api_keys (
 
 Run the SQL migration to create the API keys table:
 
-```bash
-# Apply the migration from sql/03_api_keys.sql
+```sql
+-- Apply the migration from sql/03_api_keys.sql
 ```
 
 ### 2. User Interface
@@ -73,24 +77,23 @@ The API key management interface is available at:
 - `/dashboard/settings/chatgpt` - Main management page
 - Component: `ApiKeyManager.tsx` - Handles key creation, listing, and revocation
 
-### 3. ChatGPT Configuration
+### 3. ChatGPT Integration Options
 
-Users can connect ChatGPT by:
+Choose one or both integration methods:
 
-1. **Generate API Key**:
-   - Go to `/dashboard/settings/chatgpt`
-   - Create a new API key with a descriptive name
-   - Copy the generated key (shown only once)
+#### Option A: ChatGPT Actions (HTTP API)
+1. **Generate API Key**: Go to `/dashboard/settings/chatgpt`
+2. **Configure Action**: 
+   - Schema URL: `https://yourdomain.com/api/chatgpt/manifest`
+   - Authentication: Bearer token with your API key
+3. **Test**: Ask ChatGPT to retrieve brand information
 
-2. **Configure ChatGPT Action**:
-   - In ChatGPT, create a new GPT or edit existing one
-   - Add new Action with schema URL: `https://yourdomain.com/api/chatgpt/manifest`
-   - Set authentication to "Bearer" 
-   - Paste the API key as the Bearer token
-
-3. **Test Connection**:
-   - Ask ChatGPT to retrieve brand information
-   - Verify the data is returned correctly
+#### Option B: ChatGPT MCP Connector (Recommended)
+1. **Generate API Key**: Go to `/dashboard/settings/chatgpt`
+2. **Configure MCP Connector**:
+   - Manifest URL: `https://yourdomain.com/api/mcp/manifest` 
+   - Authentication: Bearer token with your API key
+3. **Test**: ChatGPT automatically discovers and uses brand tools
 
 ## API Usage Examples
 

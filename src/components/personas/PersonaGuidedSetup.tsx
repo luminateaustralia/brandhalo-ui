@@ -7,11 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { 
-  MagnifyingGlassIcon, 
   PencilIcon, 
   SparklesIcon,
-  BuildingOfficeIcon,
-  UserGroupIcon
+  BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import { BrandProfile } from '@/types/brand';
 
@@ -108,8 +106,8 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
         website: brandProfile.companyInfo.website || '',
         businessType: brandProfile.companyInfo.industry || '',
         targetMarket: brandProfile.targetAudience?.map(audience => 
-          `${audience.demographicProfile || ''} ${audience.psychographicProfile || ''} ${audience.behavioralProfile || ''}`
-        ).join('; ') || brandProfile.brandEssence?.brandPurpose || ''
+          `${audience.name || ''} ${audience.demographics || ''} ${audience.description || ''} ${audience.keyNeeds || ''}`
+        ).filter(segment => segment.trim() !== '').join('; ') || brandProfile.brandEssence?.brandPurpose || ''
       };
 
       // Call the OpenAI assistant API for persona generation

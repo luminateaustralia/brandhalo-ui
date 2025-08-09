@@ -226,20 +226,23 @@ Ensure all personas are diverse, realistic, and directly relevant to the target 
       }
 
       // Ensure each persona has required fields
-      personaData.personas = personaData.personas.map((persona: any) => ({
-        name: persona.name || 'Unknown',
-        age: persona.age || 35,
-        occupation: persona.occupation || 'Professional',
-        location: persona.location || 'Unknown',
-        income: persona.income || '$50,000 - $75,000',
-        image: persona.image || '',
-        description: persona.description || '',
-        goals: Array.isArray(persona.goals) ? persona.goals : [],
-        painPoints: Array.isArray(persona.painPoints) ? persona.painPoints : [],
-        preferredChannels: Array.isArray(persona.preferredChannels) ? persona.preferredChannels : [],
-        buyingBehavior: persona.buyingBehavior || 'Research-driven, compares multiple options',
-        isActive: persona.isActive !== false // Default to true
-      }));
+      personaData.personas = personaData.personas.map((persona: unknown) => {
+        const p = persona as Record<string, unknown>;
+        return {
+          name: (p.name as string) || 'Unknown',
+          age: (p.age as number) || 35,
+          occupation: (p.occupation as string) || 'Professional',
+          location: (p.location as string) || 'Unknown',
+          income: (p.income as string) || '$50,000 - $75,000',
+          image: (p.image as string) || '',
+          description: (p.description as string) || '',
+          goals: Array.isArray(p.goals) ? p.goals as string[] : [],
+          painPoints: Array.isArray(p.painPoints) ? p.painPoints as string[] : [],
+          preferredChannels: Array.isArray(p.preferredChannels) ? p.preferredChannels as string[] : [],
+          buyingBehavior: (p.buyingBehavior as string) || 'Research-driven, compares multiple options',
+          isActive: p.isActive !== false // Default to true
+        };
+      });
 
     } catch (parseError) {
       console.error('❌ Failed to parse assistant response as JSON:', parseError);

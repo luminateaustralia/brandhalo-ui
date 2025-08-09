@@ -15,21 +15,23 @@ export const runtime = 'edge';
 initDatabase();
 
 // GET - Retrieve brand profile for the current organization
-export async function GET() {
+export async function GET(request: NextRequest) {
   console.log('🔍 Brand API GET route called');
   try {
     const authResult = await auth();
-    console.log('🔍 Auth result:', { orgId: authResult?.orgId, userId: authResult?.userId });
-    
+    const searchOrgId = request.nextUrl.searchParams.get('orgId');
+    const effectiveOrgId = searchOrgId || authResult?.orgId;
+    console.log('🔍 Auth result:', { orgId: authResult?.orgId, userId: authResult?.userId, searchOrgId, effectiveOrgId });
+
     if (!authResult?.userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    if (!authResult?.orgId) {
+    if (!effectiveOrgId) {
       return NextResponse.json({ error: 'Organization ID required' }, { status: 401 });
     }
 
-    const brandProfile = await getBrandProfile(authResult.orgId);
+    const brandProfile = await getBrandProfile(effectiveOrgId);
     
     if (!brandProfile) {
       return NextResponse.json({ error: 'Brand profile not found' }, { status: 404 });

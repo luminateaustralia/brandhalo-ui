@@ -99,6 +99,118 @@ const getInitialBrandProfile = (): BrandProfile => {
   return getDefaultBrandProfile();
 };
 
+// Normalize stored/ingested brand data to match our schema
+function isValidUrlString(value: unknown): boolean {
+  if (typeof value !== 'string' || value.trim() === '') return false;
+  
+  // Handle specific invalid cases from autodiscovery
+  const trimmed = value.trim().toLowerCase();
+  if (trimmed === 'not discovered' || trimmed === 'not available' || trimmed === 'n/a' || trimmed === 'none') {
+    return false;
+  }
+  
+  try {
+    // Allow protocol-less domains by prepending https for validation only
+    const candidate = value.match(/^https?:\/\//) ? value : `https://${value}`;
+    // eslint-disable-next-line no-new
+    new URL(candidate);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function normalizeBrandData(raw: any): BrandProfileForm {
+  const data: any = { ...getDefaultBrandProfile(), ...(raw || {}) };
+
+  // Company info
+  if (!isValidUrlString(data.companyInfo?.website)) {
+    if (data?.companyInfo) data.companyInfo.website = '';
+  }
+
+  // Brand essence
+  if (!Array.isArray(data.brandEssence?.values)) {
+    const v = data.brandEssence?.values;
+    data.brandEssence.values = typeof v === 'string' ? [v] : [''];
+  }
+
+  // Personality
+  if (!Array.isArray(data.brandPersonality?.traits)) {
+    const t = data.brandPersonality?.traits;
+    data.brandPersonality.traits = typeof t === 'string' ? [t] : [''];
+  }
+
+  // Visuals
+  if (!isValidUrlString(data.brandVisuals?.logoURL)) {
+    if (data?.brandVisuals) data.brandVisuals.logoURL = '';
+  }
+  if (!Array.isArray(data.brandVisuals?.primaryColors)) {
+    data.brandVisuals.primaryColors = [{ name: '', hex: '' }];
+  }
+  if (!Array.isArray(data.brandVisuals?.secondaryColors)) {
+    data.brandVisuals.secondaryColors = [];
+  }
+  if (!Array.isArray(data.brandVisuals?.typography)) {
+    data.brandVisuals.typography = [{ name: '', usage: '' }];
+  }
+
+  // Target audience
+  if (!Array.isArray(data.targetAudience)) {
+    data.targetAudience = [{ name: '', description: '', keyNeeds: '', demographics: '' }];
+  } else {
+    data.targetAudience = data.targetAudience.map((a: any) => {
+      if (typeof a === 'string') {
+        return { name: a, description: '', keyNeeds: '', demographics: '' };
+      }
+      return {
+        name: a?.name ?? '',
+        description: a?.description ?? '',
+        keyNeeds: a?.keyNeeds ?? '',
+        demographics: a?.demographics ?? ''
+      };
+    });
+  }
+
+  // Competitive landscape
+  const comp = data.competitiveLandscape ?? {};
+  if (!Array.isArray(comp.primaryCompetitors)) {
+    comp.primaryCompetitors = [];
+  } else {
+    comp.primaryCompetitors = comp.primaryCompetitors.map((c: any) => {
+      if (typeof c === 'string') {
+        return { name: c, website: '', positioning: '' };
+      }
+      return {
+        name: c?.name ?? '',
+        website: isValidUrlString(c?.website) ? c.website : '',
+        positioning: c?.positioning ?? ''
+      };
+    });
+  }
+  comp.differentiators = typeof comp.differentiators === 'string' ? comp.differentiators : '';
+  data.competitiveLandscape = comp;
+
+  // Messaging
+  if (!Array.isArray(data.messaging?.keyMessages)) {
+    const km = data.messaging?.keyMessages;
+    data.messaging.keyMessages = typeof km === 'string' ? [km] : [''];
+  }
+
+  // Compliance
+  if (!isValidUrlString(data.compliance?.brandGuidelinesURL)) {
+    if (data?.compliance) data.compliance.brandGuidelinesURL = '';
+  }
+  data.compliance.trademarkStatus = typeof data.compliance?.trademarkStatus === 'string' ? data.compliance.trademarkStatus : '';
+  data.compliance.notes = typeof data.compliance?.notes === 'string' ? data.compliance.notes : '';
+
+  // Meta
+  data.version = Number.isInteger(data.version) && data.version > 0 ? data.version : 1;
+  const validStatuses: BrandStatus[] = ['draft', 'pending_approval', 'approved'];
+  data.status = validStatuses.includes(data.status) ? data.status : 'draft';
+
+  return data as BrandProfileForm;
+}
+
 // Form steps configuration
 const formSteps: FormStep[] = [
   {
@@ -236,10 +348,11 @@ export default function BrandPage() {
     
     setIsLoading(true);
     try {
-      const response = await fetch('/api/brand');
+      const response = await fetch(`/api/brand${organization?.id ? `?orgId=${encodeURIComponent(organization.id)}` : ''}`);
       if (response.ok) {
         const data = await response.json();
-        const parsed = brandProfileSchema.parse(data.brandData);
+        const normalized = normalizeBrandData(data.brandData);
+        const parsed = brandProfileSchema.parse(normalized);
         setBrandProfile(parsed);
         reset(parsed);
         if (parsed?.version) setLocalVersion(parsed.version);

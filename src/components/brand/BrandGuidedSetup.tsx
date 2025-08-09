@@ -78,7 +78,7 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
       }
 
       const brandData = await response.json();
-      
+
       // Create the brand profile using the response
       const createResponse = await fetch('/api/brand', {
         method: 'POST',
@@ -88,8 +88,28 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
         body: JSON.stringify(brandData)
       });
 
+      // If brand already exists, update it instead
+      if (createResponse.status === 409) {
+        const updateResponse = await fetch('/api/brand', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(brandData)
+        });
+
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json().catch(() => ({ error: 'Failed to update existing brand profile' }));
+          throw new Error(errorData.error || 'Failed to update existing brand profile');
+        }
+
+        toast.success('Brand profile updated from autodiscovery!');
+        onAutodiscoveryComplete();
+        return;
+      }
+
       if (!createResponse.ok) {
-        const errorData = await createResponse.json();
+        const errorData = await createResponse.json().catch(() => ({ error: 'Failed to create brand profile' }));
         throw new Error(errorData.error || 'Failed to create brand profile');
       }
 

@@ -204,46 +204,24 @@ export default function PersonasPage() {
       return;
     }
 
-    // First confirmation
-    if (!confirm(`⚠️ WARNING: You are about to delete ALL ${personas.length} persona(s). This action cannot be undone.`)) {
-      return;
-    }
-
-    // Second confirmation with typing requirement
-    const confirmText = 'DELETE ALL PERSONAS';
-    const userInput = prompt(
-      `To confirm deletion of ALL personas, please type exactly: "${confirmText}"\n\nThis will permanently delete ${personas.length} persona(s) and cannot be undone.`
-    );
-
-    if (userInput !== confirmText) {
-      if (userInput !== null) { // null means user clicked cancel
-        showNotification('Deletion cancelled - text did not match exactly', 'error');
-      }
+    if (!confirm(`Are you sure you want to delete ALL ${personas.length} persona(s)? This action cannot be undone.`)) {
       return;
     }
 
     try {
-      console.log('🗑️ Deleting all personas...');
-      
       const response = await fetch('/api/personas', {
         method: 'DELETE'
       });
       
-      console.log('🗑️ DELETE ALL Response:', response.status, response.statusText);
-      
       if (response.ok) {
         const result = await response.json();
-        console.log('🗑️ Delete all result:', result);
-        
         showNotification(
           `Successfully deleted ${result.deletedCount || personas.length} persona(s)!`, 
           'success'
         );
         await fetchPersonas();
       } else {
-        const errorText = await response.text();
-        console.error('❌ DELETE ALL failed:', response.status, errorText);
-        throw new Error(`Failed to delete all personas: ${response.status} ${response.statusText}`);
+        throw new Error('Failed to delete all personas');
       }
     } catch (error) {
       console.error('Error deleting all personas:', error);

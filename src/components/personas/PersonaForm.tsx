@@ -91,10 +91,9 @@ export default function PersonaForm({
     // Generate placeholder image if no image is provided
     let imageUrl = formData.image;
     if (!imageUrl && formData.name) {
-      const initials = formData.name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
-      const colors = ['3B82F6', '10B981', 'F59E0B', 'EF4444', '8B5CF6', '06B6D4', 'F97316', 'EC4899'];
-      const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=200&background=${backgroundColor}&color=ffffff&format=png&rounded=true&bold=true`;
+      // Generate realistic avatar using DiceBear API
+      const seed = formData.name.replace(/\s+/g, '').toLowerCase();
+      imageUrl = `https://api.dicebear.com/7.x/personas/png?seed=${encodeURIComponent(seed)}&size=400&backgroundColor=transparent&radius=50`;
     }
 
     const cleanedData = {
@@ -248,10 +247,10 @@ export default function PersonaForm({
                   onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isReadOnly}
-                  placeholder="https://example.com/image.jpg (leave blank for auto-generated avatar)"
+                  placeholder="https://example.com/image.jpg (leave blank for generated avatar)"
                 />
                 <p className="mt-1 text-xs text-gray-500">
-                  Leave blank to automatically generate a profile avatar based on the persona name
+                  Leave blank to automatically generate a professional avatar based on the persona name
                 </p>
               </div>
             </div>

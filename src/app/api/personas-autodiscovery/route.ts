@@ -4,12 +4,20 @@ import { z } from 'zod';
 
 export const runtime = 'edge';
 
-// Validation schema for the request
+// Validation schema for the complete brand profile request
 const autodiscoveryRequestSchema = z.object({
-  brandName: z.string().min(1, 'Brand name is required'),
-  website: z.string().optional(),
-  businessType: z.string().optional(),
-  targetMarket: z.string().optional()
+  timestamp: z.string(),
+  organization: z.string(),
+  brand: z.object({
+    companyInfo: z.object({}).passthrough(),
+    brandEssence: z.object({}).passthrough(),
+    brandPersonality: z.object({}).passthrough(),
+    brandVisuals: z.object({}).passthrough(),
+    targetAudience: z.array(z.object({}).passthrough()).optional(),
+    competitiveLandscape: z.object({}).passthrough().optional(),
+    messaging: z.object({}).passthrough().optional(),
+    compliance: z.object({}).passthrough().optional()
+  })
 });
 
 // POST - Call OpenAI assistant for persona autodiscovery
@@ -41,25 +49,39 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Prepare the prompt for persona generation
-    const prompt = `Based on the following business information, determine the optimal number of customer personas (typically 3-5) and create detailed customer personas:
+    // Prepare the prompt for persona generation with complete brand profile
+    const prompt = `Based on the following comprehensive brand profile, determine the optimal number of customer personas (typically 3-5) and create detailed customer personas:
 
-Brand Name: ${validatedData.brandName}
-${validatedData.website ? `Website: ${validatedData.website}` : ''}
-${validatedData.businessType ? `Business Type: ${validatedData.businessType}` : ''}
-${validatedData.targetMarket ? `Target Market: ${validatedData.targetMarket}` : ''}
+COMPLETE BRAND PROFILE:
+${JSON.stringify(validatedData, null, 2)}
+
+Analyze the complete brand profile above including:
+- Company information (industry, size, location, etc.)
+- Brand essence (mission, vision, values, purpose)
+- Brand personality (archetype, traits, voice/tone)
+- Target audience segments
+- Competitive landscape
+- Messaging strategy
+- Visual identity
+
+Based on this comprehensive brand analysis, create personas that align with:
+1. The brand's target audience segments
+2. The company's industry and business model
+3. The brand personality and values
+4. The competitive positioning
+5. The messaging strategy
 
 For each persona, provide detailed information including:
 - name (realistic first and last name)
 - age (specific age, not range)
-- occupation (specific job title)
-- location (city, state/country)
+- occupation (specific job title that aligns with target audience)
+- location (city, state/country relevant to the brand's market)
 - income (select from: "Under $30,000", "$30,000 - $50,000", "$50,000 - $75,000", "$75,000 - $100,000", "$100,000 - $150,000", "$150,000 - $200,000", "$200,000+", "Prefer not to say")
 - description (2-3 sentence personality and background description)
-- goals (3-5 specific, actionable goals related to your business)
-- painPoints (3-5 specific challenges they face that your business could solve)
+- goals (3-5 specific, actionable goals that align with the brand's value proposition)
+- painPoints (3-5 specific challenges they face that the brand can solve)
 - preferredChannels (3-5 communication channels from: Email, LinkedIn, Facebook, Instagram, Twitter/X, TikTok, YouTube, WhatsApp, SMS, Phone calls, In-person meetings, Webinars, Industry blogs, Podcasts, Print media, Radio, TV, Online forums, Professional networks, Word of mouth)
-- buyingBehavior (select one: "Research-driven, compares multiple options", "Impulse buyer, makes quick decisions", "Brand loyal, sticks to trusted companies", "Price-sensitive, seeks best deals", "Quality-focused, willing to pay premium", "Social proof driven, reads reviews extensively", "Relationship-based, prefers personal recommendations", "Values-driven, supports brands with purpose", "Early adopter, tries new products first", "Risk-averse, waits for proven solutions")
+- buyingBehavior (select one that matches the brand positioning: "Research-driven, compares multiple options", "Impulse buyer, makes quick decisions", "Brand loyal, sticks to trusted companies", "Price-sensitive, seeks best deals", "Quality-focused, willing to pay premium", "Social proof driven, reads reviews extensively", "Relationship-based, prefers personal recommendations", "Values-driven, supports brands with purpose", "Early adopter, tries new products first", "Risk-averse, waits for proven solutions")
 
 Return ONLY a valid JSON object in this exact format:
 {
@@ -80,12 +102,12 @@ Return ONLY a valid JSON object in this exact format:
   ],
   "metadata": {
     "generatedAt": "${new Date().toISOString()}",
-    "basedOn": "Business information provided by user",
-    "confidence": 85
+    "basedOn": "Complete brand profile analysis",
+    "confidence": 90
   }
 }
 
-Ensure all personas are diverse, realistic, and directly relevant to the target market described.`;
+Ensure all personas are diverse, realistic, and strategically aligned with the brand profile provided.`;
 
     // Call OpenAI Assistant API
     console.log('🎭 Calling OpenAI assistant for persona generation');

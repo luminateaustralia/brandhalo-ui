@@ -37,6 +37,24 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBrands, setIsLoadingBrands] = useState(false);
   const [brandOptions, setBrandOptions] = useState<BrandOption[]>([]);
+  
+  // Debug state for local development
+  const [debugInfo, setDebugInfo] = useState<{
+    input: Record<string, unknown>;
+    response: Record<string, unknown> | null;
+    timestamp: string;
+  } | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
+  const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENV === 'local';
+  
+  // Debug the environment check
+  useEffect(() => {
+    console.log('🔍 PersonaGuidedSetup Environment Check:', {
+      NODE_ENV: process.env.NODE_ENV,
+      NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
+      isDevelopment
+    });
+  }, [isDevelopment]);
 
   const {
     register,
@@ -99,16 +117,39 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
 
     setIsLoading(true);
     try {
-      // Extract relevant information from the brand profile
+      // Create complete brand profile data in same format as UseBrand export
       const brandProfile = selectedBrand.profile;
-      const brandData = {
-        brandName: brandProfile.companyInfo.companyName || selectedBrand.name,
-        website: brandProfile.companyInfo.website || '',
-        businessType: brandProfile.companyInfo.industry || '',
-        targetMarket: brandProfile.targetAudience?.map(audience => 
-          `${audience.name || ''} ${audience.demographics || ''} ${audience.description || ''} ${audience.keyNeeds || ''}`
-        ).filter(segment => segment.trim() !== '').join('; ') || brandProfile.brandEssence?.brandPurpose || ''
+      const completeBrandData = {
+        timestamp: new Date().toISOString(),
+        organization: organization?.name || organization?.slug || 'Unknown',
+        brand: {
+          companyInfo: brandProfile.companyInfo || {},
+          brandEssence: brandProfile.brandEssence || {},
+          brandPersonality: brandProfile.brandPersonality || {},
+          brandVisuals: {
+            logoURL: brandProfile.brandVisuals?.logoURL,
+            primaryColors: brandProfile.brandVisuals?.primaryColors || [],
+            secondaryColors: brandProfile.brandVisuals?.secondaryColors || [],
+            typography: brandProfile.brandVisuals?.typography || [],
+            imageStyleDescription: brandProfile.brandVisuals?.imageStyleDescription
+          },
+          targetAudience: brandProfile.targetAudience || [],
+          competitiveLandscape: brandProfile.competitiveLandscape || {},
+          messaging: brandProfile.messaging || {},
+          compliance: brandProfile.compliance || {}
+        }
       };
+
+      // Store debug info for development
+      if (isDevelopment) {
+        console.log('🔍 Setting debug info with completeBrandData:', completeBrandData);
+        setDebugInfo({
+          input: completeBrandData,
+          response: null,
+          timestamp: new Date().toISOString()
+        });
+        setShowDebug(true);
+      }
 
       // Call the OpenAI assistant API for persona generation
       const response = await fetch('/api/personas-autodiscovery', {
@@ -116,7 +157,7 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(brandData)
+        body: JSON.stringify(completeBrandData)
       });
 
       if (!response.ok) {
@@ -125,6 +166,15 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
       }
 
       const personaGenerationResponse = await response.json();
+
+      // Update debug info with response
+      if (isDevelopment && debugInfo) {
+        console.log('🔍 Updating debug info with response:', personaGenerationResponse);
+        setDebugInfo({
+          ...debugInfo,
+          response: personaGenerationResponse
+        });
+      }
 
       // Create each persona using the existing API
       let successCount = 0;
@@ -182,6 +232,7 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Let&apos;s generate your personas
+              {isDevelopment && <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded">DEBUG MODE</span>}
             </h1>
             <p className="text-gray-600 text-lg">
               Select your brand profile and we&apos;ll create the optimal number of detailed customer personas for you
@@ -317,6 +368,66 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
               </div>
             </form>
           </div>
+
+          {/* Debug View - Only in Development */}
+          {isDevelopment && debugInfo && (
+            <div className="mt-8">
+              <div className="bg-gray-900 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white font-medium">🔍 Debug Info</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-green-400 text-xs">{debugInfo.timestamp}</span>
+                    <button
+                      onClick={() => setShowDebug(!showDebug)}
+                      className="text-gray-400 hover:text-white text-sm"
+                    >
+                      {showDebug ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+                
+                {showDebug && (
+                  <div className="space-y-4">
+                    {/* Input Section */}
+                    <div>
+                      <h4 className="text-yellow-400 text-sm font-medium mb-2">📤 Input to Assistant:</h4>
+                      <pre className="bg-gray-800 p-3 rounded text-green-400 text-xs overflow-x-auto">
+                        {JSON.stringify(debugInfo.input, null, 2)}
+                      </pre>
+                    </div>
+                    
+                    {/* Response Section */}
+                    {debugInfo.response && (
+                      <div>
+                        <h4 className="text-blue-400 text-sm font-medium mb-2">📥 Response from Assistant:</h4>
+                        <pre className="bg-gray-800 p-3 rounded text-cyan-400 text-xs overflow-x-auto max-h-80">
+                          {JSON.stringify(debugInfo.response, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                    
+                    {/* Copy Buttons */}
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => navigator.clipboard.writeText(JSON.stringify(debugInfo.input, null, 2))}
+                        className="text-xs bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded"
+                      >
+                        Copy Input
+                      </button>
+                      {debugInfo.response && (
+                        <button
+                          onClick={() => navigator.clipboard.writeText(JSON.stringify(debugInfo.response, null, 2))}
+                          className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                        >
+                          Copy Response
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -419,6 +530,66 @@ export default function PersonaGuidedSetup({ onSelectOption, onAutodiscoveryComp
             You can always edit, add, or remove personas after they&apos;re created
           </p>
         </div>
+
+        {/* Debug View - Only in Development */}
+        {isDevelopment && debugInfo && (
+          <div className="mt-8">
+            <div className="bg-gray-900 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-medium">🔍 Debug Info</h3>
+                <div className="flex items-center space-x-2">
+                  <span className="text-green-400 text-xs">{debugInfo.timestamp}</span>
+                  <button
+                    onClick={() => setShowDebug(!showDebug)}
+                    className="text-gray-400 hover:text-white text-sm"
+                  >
+                    {showDebug ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+              
+              {showDebug && (
+                <div className="space-y-4">
+                  {/* Input Section */}
+                  <div>
+                    <h4 className="text-yellow-400 text-sm font-medium mb-2">📤 Input to Assistant:</h4>
+                    <pre className="bg-gray-800 p-3 rounded text-green-400 text-xs overflow-x-auto">
+                      {JSON.stringify(debugInfo.input, null, 2)}
+                    </pre>
+                  </div>
+                  
+                  {/* Response Section */}
+                  {debugInfo.response && (
+                    <div>
+                      <h4 className="text-blue-400 text-sm font-medium mb-2">📥 Response from Assistant:</h4>
+                      <pre className="bg-gray-800 p-3 rounded text-cyan-400 text-xs overflow-x-auto max-h-80">
+                        {JSON.stringify(debugInfo.response, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                  
+                  {/* Copy Buttons */}
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(JSON.stringify(debugInfo.input, null, 2))}
+                      className="text-xs bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded"
+                    >
+                      Copy Input
+                    </button>
+                    {debugInfo.response && (
+                      <button
+                        onClick={() => navigator.clipboard.writeText(JSON.stringify(debugInfo.response, null, 2))}
+                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                      >
+                        Copy Response
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export default function Sidebar() {
         const res = await fetch('/api/access/is-superadmin', { cache: 'no-store' });
         const data = await res.json();
         if (isMounted) setIsSuperAdmin(Boolean(data?.isSuperAdmin));
-      } catch (_err) {
+      } catch {
         if (isMounted) setIsSuperAdmin(false);
       }
     }

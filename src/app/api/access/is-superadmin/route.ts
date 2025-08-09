@@ -8,7 +8,8 @@ export async function GET() {
       return NextResponse.json({ isSuperAdmin: false });
     }
 
-    const role = (user as any)?.privateMetadata?.role;
+    type PrivateMetadata = { role?: string };
+    const role = (user.privateMetadata as PrivateMetadata)?.role;
     const isSuperAdmin = role === 'superAdmin';
     return NextResponse.json({ isSuperAdmin });
   } catch (error) {

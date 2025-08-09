@@ -146,7 +146,8 @@ export default clerkMiddleware(async (auth, req) => {
 
     try {
       const user = await clerkClient.users.getUser(session.userId);
-      const role = (user as any)?.privateMetadata?.role;
+      type PrivateMetadata = { role?: string };
+      const role = (user.privateMetadata as PrivateMetadata)?.role;
       const isSuperAdmin = role === 'superAdmin';
 
       if (!isSuperAdmin) {

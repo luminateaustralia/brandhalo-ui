@@ -54,6 +54,13 @@ export const exportBrandToPDF = async (brandProfile: BrandProfile) => {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(24);
   pdf.text('Brand Profile', margin, 25);
+  // Version/Status chip on header
+  const headerRightX = pageWidth - margin - 120;
+  pdf.setFontSize(10);
+  pdf.setTextColor(230, 230, 255);
+  const version = brandProfile.version ?? 1;
+  const statusLabel = (brandProfile.status ?? 'draft').replace('_', ' ');
+  pdf.text(`v${version} • ${statusLabel}`, headerRightX, 25);
   
   y = 50;
 

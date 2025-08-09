@@ -13,8 +13,8 @@ import {
   ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
-import { BrandProfile } from '@/types/brand';
 import { brandProfileSchema } from '@/lib/validations/brand';
+import { z } from 'zod';
 import { getMaterHealthDummyData } from '@/lib/dummyData';
 import CompanyInfoStep from '@/components/brand/CompanyInfoStep';
 import BrandEssenceStep from '@/components/brand/BrandEssenceStep';
@@ -25,8 +25,10 @@ import CompetitiveLandscapeStep from '@/components/brand/CompetitiveLandscapeSte
 import MessagingStep from '@/components/brand/MessagingStep';
 import ComplianceStep from '@/components/brand/ComplianceStep';
 
+type BrandProfileForm = z.infer<typeof brandProfileSchema>;
+
 // Default empty brand profile
-const getDefaultBrandProfile = (): BrandProfile => ({
+const getDefaultBrandProfile = (): BrandProfileForm => ({
   companyInfo: {
     companyName: '',
     industry: '',
@@ -77,7 +79,9 @@ const getDefaultBrandProfile = (): BrandProfile => ({
     brandGuidelinesURL: '',
     trademarkStatus: '',
     notes: ''
-  }
+  },
+  version: 1,
+  status: 'draft'
 });
 
 // Section configuration
@@ -146,7 +150,7 @@ export default function BrandConfigurationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const methods = useForm<BrandProfile>({
+  const methods = useForm<BrandProfileForm>({
     resolver: zodResolver(brandProfileSchema),
     defaultValues: getDefaultBrandProfile(),
     mode: 'onChange'
@@ -225,7 +229,7 @@ export default function BrandConfigurationPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const onSubmit = async (data: BrandProfile) => {
+  const onSubmit = async (data: BrandProfileForm) => {
     setIsLoading(true);
     try {
       // Here you could save the configuration template or perform other actions

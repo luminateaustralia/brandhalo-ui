@@ -1,4 +1,6 @@
 // Brand Profile Types - Comprehensive brand information structure
+export type BrandStatus = 'draft' | 'pending_approval' | 'approved';
+
 export interface BrandProfile {
   companyInfo: CompanyInfo;
   brandEssence: BrandEssence;
@@ -8,6 +10,9 @@ export interface BrandProfile {
   competitiveLandscape: CompetitiveLandscape;
   messaging: Messaging;
   compliance: Compliance;
+  // Metadata
+  version?: number;
+  status?: BrandStatus;
 }
 
 export interface CompanyInfo {

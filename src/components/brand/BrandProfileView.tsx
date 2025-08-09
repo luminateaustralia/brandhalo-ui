@@ -32,7 +32,7 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
 
   // State to track which sections are expanded (all collapsed by default for clean overview)
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
-    'company-info': false,
+    'company-info': true,
     'brand-essence': false,
     'brand-personality': false,
     'brand-visuals': false,
@@ -184,7 +184,19 @@ export default function BrandProfileView({ brandProfile }: BrandProfileViewProps
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       {/* Collapse/Expand All Button */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">Version v{brandProfile.version ?? 1}</span>
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border ${
+            (brandProfile.status ?? 'draft') === 'approved' 
+              ? 'bg-green-100 text-green-800 border-green-200' 
+              : (brandProfile.status ?? 'draft') === 'pending_approval' 
+                ? 'bg-yellow-100 text-yellow-800 border-yellow-200' 
+                : 'bg-gray-100 text-gray-800 border-gray-200'
+          }`}>
+            Status {(brandProfile.status ?? 'draft').replace('_', ' ')}
+          </span>
+        </div>
         <button
           onClick={toggleAllSections}
           className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"

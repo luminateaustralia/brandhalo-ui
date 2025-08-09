@@ -95,7 +95,9 @@ export const brandProfileSchema = z.object({
   targetAudience: z.array(audienceSegmentSchema).optional().default([{ name: '', description: '', keyNeeds: '', demographics: '' }]),
   competitiveLandscape: competitiveLandscapeSchema,
   messaging: messagingSchema,
-  compliance: complianceSchema
+  compliance: complianceSchema,
+  version: z.number().int().positive().optional().default(1),
+  status: z.enum(['draft', 'pending_approval', 'approved']).optional().default('draft')
 });
 
 // Individual section validation functions

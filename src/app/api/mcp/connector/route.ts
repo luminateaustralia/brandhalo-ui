@@ -66,6 +66,18 @@ async function callMCPServer(tool: string, params: Record<string, unknown>, orga
         }
       };
 
+    case 'get_brand_personas': {
+      const { getPersonas } = await import('@/lib/db');
+      const personas = await getPersonas(organizationId);
+      return personas.map((p) => p.personaData);
+    }
+
+    case 'get_brand_voices': {
+      const { getBrandVoices } = await import('@/lib/db');
+      const voices = await getBrandVoices(organizationId);
+      return voices.map((v) => v.voiceData);
+    }
+
     case 'get_brand_summary':
       return {
         company: brandData.companyInfo.companyName,
@@ -213,6 +225,8 @@ export async function GET() {
     capabilities: {
       tools: [
         'get_brand_profile',
+        'get_brand_personas',
+        'get_brand_voices',
         'get_brand_summary', 
         'get_brand_voice_guide',
         'get_target_audience',

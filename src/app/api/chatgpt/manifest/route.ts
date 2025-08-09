@@ -52,6 +52,58 @@ export async function GET(request: NextRequest) {
               }
             }
           }
+        },
+        "/api/chatgpt/personas": {
+          "get": {
+            "operationId": "getBrandPersonas",
+            "summary": "Retrieve brand personas",
+            "description": "Get all defined brand personas for the authenticated organization.",
+            "security": [
+              {
+                "BearerAuth": []
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response with brand personas",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Persona" }
+                    }
+                  }
+                }
+              },
+              "401": { "description": "Unauthorized - Invalid or missing API key" }
+            }
+          }
+        },
+        "/api/chatgpt/brand-voices": {
+          "get": {
+            "operationId": "getBrandVoices",
+            "summary": "Retrieve brand voices",
+            "description": "Get all defined brand voices for the authenticated organization.",
+            "security": [
+              {
+                "BearerAuth": []
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response with brand voices",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/BrandVoice" }
+                    }
+                  }
+                }
+              },
+              "401": { "description": "Unauthorized - Invalid or missing API key" }
+            }
+          }
         }
       },
       "components": {
@@ -115,6 +167,50 @@ export async function GET(request: NextRequest) {
                   }
                 }
               }
+            }
+          },
+          "Persona": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "age": { "type": "number" },
+              "occupation": { "type": "string" },
+              "location": { "type": "string" },
+              "income": { "type": "string" },
+              "image": { "type": "string" },
+              "description": { "type": "string" },
+              "goals": { "type": "array", "items": { "type": "string" } },
+              "painPoints": { "type": "array", "items": { "type": "string" } },
+              "preferredChannels": { "type": "array", "items": { "type": "string" } },
+              "buyingBehavior": { "type": "string" },
+              "isActive": { "type": "boolean" },
+              "createdAt": { "type": "string" },
+              "updatedAt": { "type": "string" }
+            }
+          },
+          "BrandVoice": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "jobTitle": { "type": "string" },
+              "department": { "type": "string" },
+              "email": { "type": "string" },
+              "bio": { "type": "string" },
+              "profileImage": { "type": "string" },
+              "communicationStyle": { "type": "string" },
+              "tone": { "type": "string" },
+              "personalityTraits": { "type": "array", "items": { "type": "string" } },
+              "contentFocus": { "type": "array", "items": { "type": "string" } },
+              "preferredTopics": { "type": "array", "items": { "type": "string" } },
+              "expertiseAreas": { "type": "array", "items": { "type": "string" } },
+              "doList": { "type": "array", "items": { "type": "string" } },
+              "dontList": { "type": "array", "items": { "type": "string" } },
+              "keyMessages": { "type": "array", "items": { "type": "string" } },
+              "isActive": { "type": "boolean" },
+              "createdAt": { "type": "string" },
+              "updatedAt": { "type": "string" }
             }
           }
         }

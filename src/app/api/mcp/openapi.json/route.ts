@@ -123,6 +123,8 @@ export async function GET(request: NextRequest) {
                     "type": "string",
                     "enum": [
                       "get_brand_profile",
+                     "get_brand_personas",
+                     "get_brand_voices",
                       "get_brand_summary",
                       "get_brand_voice_guide",
                       "get_target_audience",

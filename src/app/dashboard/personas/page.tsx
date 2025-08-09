@@ -19,6 +19,7 @@ import {
 import { exportPersonaToPDF, copyPersonaToClipboard } from '@/utils/personaExport';
 import { Persona, PersonaFormData, PersonaFormMode } from '@/types/persona';
 import PersonaForm from '@/components/personas/PersonaForm';
+import PersonaGuidedSetup from '@/components/personas/PersonaGuidedSetup';
 
 // Helper function to get icon for persona (for display purposes)
 const getPersonaIcon = (occupation: string) => {
@@ -76,6 +77,7 @@ export default function PersonasPage() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showGuidedSetup, setShowGuidedSetup] = useState(false);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type });
@@ -210,6 +212,39 @@ export default function PersonasPage() {
     }
   };
 
+  // Handler for guided setup option selection
+  const handleGuidedSetupOption = (option: 'autodiscover' | 'manual') => {
+    if (option === 'manual') {
+      // Start manual build - go to create form
+      setShowGuidedSetup(false);
+      setFormMode('create');
+      setSelectedPersona(null);
+      setIsFormOpen(true);
+    }
+    // For autodiscover, the PersonaGuidedSetup component handles the flow internally
+  };
+
+  // Handler for successful autodiscovery completion
+  const handleAutodiscoveryComplete = () => {
+    // Reload the personas to get the newly created data
+    fetchPersonas();
+    setShowGuidedSetup(false);
+    showNotification('Personas generated successfully!', 'success');
+  };
+
+  // Show guided setup if explicitly requested or if no personas exist and user hasn't dismissed it
+  const shouldShowGuidedSetup = showGuidedSetup || (!isLoading && personas.length === 0);
+
+  // If guided setup should be shown, render it instead of the main page
+  if (shouldShowGuidedSetup) {
+    return (
+      <PersonaGuidedSetup
+        onSelectOption={handleGuidedSetupOption}
+        onAutodiscoveryComplete={handleAutodiscoveryComplete}
+      />
+    );
+  }
+
   return (
     <div className="w-full">
       {/* Notification */}
@@ -230,13 +265,22 @@ export default function PersonasPage() {
               Understand your target audience through detailed customer personas
             </p>
           </div>
-          <button
-            onClick={handleCreatePersona}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <PlusIcon className="w-5 h-5" />
-            <span>Create Persona</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowGuidedSetup(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <PlusIcon className="w-5 h-5" />
+              <span>AI Generate</span>
+            </button>
+            <button
+              onClick={handleCreatePersona}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <PencilIcon className="w-5 h-5" />
+              <span>Create Manually</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -282,23 +326,7 @@ export default function PersonasPage() {
         </div>
       )}
 
-      {/* Empty State */}
-      {!isLoading && personas.length === 0 && (
-        <div className="text-center py-12">
-          <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No personas</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating your first customer persona.</p>
-          <div className="mt-6">
-            <button
-              onClick={handleCreatePersona}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-              Create Persona
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Personas Grid */}
       {!isLoading && personas.length > 0 && (

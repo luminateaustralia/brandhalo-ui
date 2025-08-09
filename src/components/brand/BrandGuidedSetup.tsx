@@ -147,25 +147,6 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
             
           </div>
 
-          {/* Info Box */}
-          <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <SparklesIcon className="h-5 w-5 text-blue-400" />
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">
-                  How it works
-                </h3>
-                <div className="mt-2 text-sm text-blue-700">
-                  <p>
-                    We&apos;ll head off and find your brand from the website, your public channels, social media to automatically create a comprehensive brand profile including brand essence, personality, visuals, and messaging guidelines.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Autodiscovery Form */}
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <form onSubmit={handleSubmit(handleAutodiscovery)} className="space-y-6">
@@ -209,6 +190,25 @@ export default function BrandGuidedSetup({ onSelectOption, onAutodiscoveryComple
                 {errors.website && (
                   <p className="mt-2 text-sm text-red-600">{errors.website.message}</p>
                 )}
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <SparklesIcon className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      How it works
+                    </h3>
+                    <div className="mt-2 text-sm text-blue-700">
+                      <p>
+                        We&apos;ll head off and find your brand from the website, your public channels, social media to automatically create a comprehensive brand profile including brand essence, personality, visuals, and messaging guidelines.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}

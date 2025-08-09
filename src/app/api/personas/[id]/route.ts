@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { 
   updatePersona, 
   deletePersona, 
+  getPersona,
   initDatabase 
 } from '@/lib/db';
 import { PersonaFormData } from '@/types/persona';
@@ -41,6 +42,16 @@ export async function PUT(
     // Validate that required fields are present
     if (!personaData.name || !personaData.occupation || !personaData.age) {
       return NextResponse.json({ error: 'Name, occupation, and age are required' }, { status: 400 });
+    }
+
+    // Check if persona exists and belongs to the user's organization
+    const existingPersona = await getPersona(id);
+    if (!existingPersona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    if (existingPersona.organizationId !== orgId) {
+      return NextResponse.json({ error: 'Unauthorized - persona does not belong to your organization' }, { status: 403 });
     }
 
     // Add updated timestamp
@@ -84,6 +95,16 @@ export async function DELETE(
     
     if (!orgId || !userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Check if persona exists and belongs to the user's organization
+    const existingPersona = await getPersona(id);
+    if (!existingPersona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    if (existingPersona.organizationId !== orgId) {
+      return NextResponse.json({ error: 'Unauthorized - persona does not belong to your organization' }, { status: 403 });
     }
 
     const result = await deletePersona(id);

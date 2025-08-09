@@ -278,6 +278,35 @@ export async function getPersonas(organizationId: string) {
   }
 }
 
+export async function getPersona(id: string) {
+  console.log('🔍 Getting persona with id:', id);
+  
+  try {
+    const result = await client.execute({
+      sql: 'SELECT * FROM brand_personas WHERE id = ?',
+      args: [id]
+    });
+    
+    console.log('🔍 Raw persona result:', result);
+    
+    if (result.rows.length === 0) {
+      return null;
+    }
+    
+    const row = result.rows[0];
+    return {
+      id: row.id as string,
+      organizationId: row.organization_id as string,
+      personaData: typeof row.persona_data === 'string' ? JSON.parse(row.persona_data) : row.persona_data,
+      createdAt: row.created_at as string,
+      updatedAt: row.updated_at as string
+    };
+  } catch (error) {
+    console.error('❌ Error getting persona:', error);
+    throw error;
+  }
+}
+
 export async function updatePersona(id: string, personaData: Partial<Persona>) {
   console.log('🔍 Updating persona:', id);
   console.log('🔍 Update data:', JSON.stringify(personaData, null, 2));
@@ -309,6 +338,27 @@ export async function deletePersona(id: string) {
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting persona:', error);
+    throw error;
+  }
+}
+
+export async function deleteAllPersonas(organizationId: string) {
+  console.log('🗑️ Deleting all personas for org:', organizationId);
+  
+  try {
+    const result = await client.execute({
+      sql: 'DELETE FROM brand_personas WHERE organization_id = ?',
+      args: [organizationId]
+    });
+    
+    console.log('🗑️ Deleted personas result:', result);
+    
+    return { 
+      success: true, 
+      deletedCount: result.rowsAffected || 0 
+    };
+  } catch (error) {
+    console.error('❌ Error deleting all personas:', error);
     throw error;
   }
 }

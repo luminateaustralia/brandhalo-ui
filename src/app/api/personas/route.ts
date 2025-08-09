@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { 
   createPersona, 
   getPersonas, 
+  deleteAllPersonas,
   initDatabase 
 } from '@/lib/db';
 import { PersonaFormData } from '@/types/persona';
@@ -82,6 +83,40 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     console.error('Error creating persona:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// DELETE - Delete all personas for the current organization
+export async function DELETE() {
+  console.log('🗑️ Personas API DELETE ALL route called');
+  try {
+    // Ensure database is initialized
+    await initDatabase();
+    
+    let orgId = null;
+    let userId = null;
+    try {
+      const authResult = await auth();
+      orgId = authResult?.orgId;
+      userId = authResult?.userId;
+      console.log('🗑️ DELETE ALL Auth result:', { orgId, userId });
+    } catch (error) {
+      console.error('🗑️ DELETE ALL Auth error:', error);
+      throw error;
+    }
+    
+    if (!orgId || !userId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const result = await deleteAllPersonas(orgId);
+    
+    console.log('🗑️ Delete all personas result:', result);
+    
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Error deleting all personas:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

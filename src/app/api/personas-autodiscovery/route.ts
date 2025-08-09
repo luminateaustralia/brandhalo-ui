@@ -247,16 +247,26 @@ Ensure all personas are diverse, realistic, and strategically aligned with the b
         throw new Error('Invalid response format: missing personas array');
       }
 
-      // Ensure each persona has required fields
-      personaData.personas = personaData.personas.map((persona: unknown) => {
+      // Ensure each persona has required fields and generate placeholder images
+      personaData.personas = personaData.personas.map((persona: unknown, index: number) => {
         const p = persona as Record<string, unknown>;
+        const personaName = (p.name as string) || 'Unknown';
+        const personaAge = (p.age as number) || 35;
+        
+        // Generate placeholder image using UI Avatars service
+        // This creates a professional avatar with initials based on the persona name
+        const initials = personaName.split(' ').map(n => n.charAt(0)).join('').substring(0, 2).toUpperCase();
+        const colors = ['3B82F6', '10B981', 'F59E0B', 'EF4444', '8B5CF6', '06B6D4', 'F97316', 'EC4899'];
+        const backgroundColor = colors[index % colors.length];
+        const placeholderImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=200&background=${backgroundColor}&color=ffffff&format=png&rounded=true&bold=true`;
+        
         return {
-          name: (p.name as string) || 'Unknown',
-          age: (p.age as number) || 35,
+          name: personaName,
+          age: personaAge,
           occupation: (p.occupation as string) || 'Professional',
           location: (p.location as string) || 'Unknown',
           income: (p.income as string) || '$50,000 - $75,000',
-          image: (p.image as string) || '',
+          image: (p.image as string) || placeholderImage,
           description: (p.description as string) || '',
           goals: Array.isArray(p.goals) ? p.goals as string[] : [],
           painPoints: Array.isArray(p.painPoints) ? p.painPoints as string[] : [],

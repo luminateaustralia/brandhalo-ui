@@ -90,7 +90,10 @@ export default function PersonasPage() {
       const response = await fetch('/api/personas');
       if (response.ok) {
         const data = await response.json();
-        setPersonas(data.map((item: { personaData: Persona }) => item.personaData));
+        setPersonas(data.map((item: { id: string; personaData: Persona }) => ({
+          ...item.personaData,
+          id: item.id
+        })));
       } else {
         throw new Error('Failed to fetch personas');
       }
@@ -173,6 +176,11 @@ export default function PersonasPage() {
       return;
     }
 
+    if (!persona.id) {
+      showNotification('Error: Persona ID is missing', 'error');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/personas/${persona.id}`, {
         method: 'DELETE'
@@ -187,6 +195,59 @@ export default function PersonasPage() {
     } catch (error) {
       console.error('Error deleting persona:', error);
       showNotification('Failed to delete persona', 'error');
+    }
+  };
+
+  const handleDeleteAllPersonas = async () => {
+    if (personas.length === 0) {
+      showNotification('No personas to delete', 'error');
+      return;
+    }
+
+    // First confirmation
+    if (!confirm(`⚠️ WARNING: You are about to delete ALL ${personas.length} persona(s). This action cannot be undone.`)) {
+      return;
+    }
+
+    // Second confirmation with typing requirement
+    const confirmText = 'DELETE ALL PERSONAS';
+    const userInput = prompt(
+      `To confirm deletion of ALL personas, please type exactly: "${confirmText}"\n\nThis will permanently delete ${personas.length} persona(s) and cannot be undone.`
+    );
+
+    if (userInput !== confirmText) {
+      if (userInput !== null) { // null means user clicked cancel
+        showNotification('Deletion cancelled - text did not match exactly', 'error');
+      }
+      return;
+    }
+
+    try {
+      console.log('🗑️ Deleting all personas...');
+      
+      const response = await fetch('/api/personas', {
+        method: 'DELETE'
+      });
+      
+      console.log('🗑️ DELETE ALL Response:', response.status, response.statusText);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('🗑️ Delete all result:', result);
+        
+        showNotification(
+          `Successfully deleted ${result.deletedCount || personas.length} persona(s)!`, 
+          'success'
+        );
+        await fetchPersonas();
+      } else {
+        const errorText = await response.text();
+        console.error('❌ DELETE ALL failed:', response.status, errorText);
+        throw new Error(`Failed to delete all personas: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error deleting all personas:', error);
+      showNotification('Failed to delete all personas', 'error');
     }
   };
 
@@ -266,6 +327,16 @@ export default function PersonasPage() {
             </p>
           </div>
           <div className="flex items-center space-x-3">
+            {personas.length > 0 && (
+              <button
+                onClick={handleDeleteAllPersonas}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                title="Delete all personas"
+              >
+                <TrashIcon className="w-5 h-5" />
+                <span>Delete All</span>
+              </button>
+            )}
             <button
               onClick={() => setShowGuidedSetup(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"

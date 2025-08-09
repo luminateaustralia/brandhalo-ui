@@ -7,7 +7,8 @@ import {
   GlobeAltIcon, 
   BuildingOfficeIcon, 
   MagnifyingGlassCircleIcon,
-  SwatchIcon
+  SwatchIcon,
+  CodeBracketIcon
 } from '@heroicons/react/24/outline';
 
 const navItems = [
@@ -35,6 +36,11 @@ const navItems = [
     name: 'Brand Config',
     href: '/admin/brand-configuration',
     icon: SwatchIcon,
+  },
+  {
+    name: 'ChatGPT Schema',
+    href: '/admin/chatgpt',
+    icon: CodeBracketIcon,
   },
 ];
 

@@ -18,9 +18,28 @@ import {
   SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
   const { isCollapsed, setIsCollapsed } = useSidebar();
+  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      try {
+        const res = await fetch('/api/access/is-superadmin', { cache: 'no-store' });
+        const data = await res.json();
+        if (isMounted) setIsSuperAdmin(Boolean(data?.isSuperAdmin));
+      } catch (_err) {
+        if (isMounted) setIsSuperAdmin(false);
+      }
+    }
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div 
@@ -161,15 +180,17 @@ export default function Sidebar() {
         {/* Bottom Section */}
         <div className="mt-auto mb-4">
           <div className={`${isCollapsed ? 'mx-2' : 'mx-4'} border-t border-gray-300 my-2`}></div>
-          <Link
-            href="/admin"
-            className={`flex items-center ${
-              isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
-            } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
-          >
-            <Cog6ToothIcon className="w-5 h-5" />
-            {!isCollapsed && <span className="ml-3">Admin</span>}
-          </Link>
+          {isSuperAdmin && (
+            <Link
+              href="/admin"
+              className={`flex items-center ${
+                isCollapsed ? 'justify-center mx-2' : 'mx-3 px-3'
+              } py-2 rounded hover:bg-purple-50 transition-all duration-200 relative border-l-2 border-transparent hover:border-purple-500`}
+            >
+              <Cog6ToothIcon className="w-5 h-5" />
+              {!isCollapsed && <span className="ml-3">Admin</span>}
+            </Link>
+          )}
         </div>
       </nav>
 

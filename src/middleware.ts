@@ -9,7 +9,11 @@ interface Organization {
 
 // Define routes that require organization membership
 const isDashboardRoute = createRouteMatcher([
-  '/dashboard(.*)',
+  '/dashboard(.*)'
+]);
+
+// Define admin-only routes
+const isAdminRoute = createRouteMatcher([
   '/admin(.*)'
 ]);
 
@@ -127,6 +131,31 @@ export default clerkMiddleware(async (auth, req) => {
       // If no organization memberships found and no domain match, redirect to onboarding
       const onboardingUrl = new URL('/onboarding', req.url);
       return NextResponse.redirect(onboardingUrl);
+    }
+  }
+
+  // For admin routes, enforce SuperAdmin from Clerk private metadata
+  if (isAdminRoute(req)) {
+    const session = await auth();
+
+    // If not authenticated, redirect to sign-in
+    if (!session.userId) {
+      const signInUrl = new URL('/sign-in', req.url);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    try {
+      const user = await clerkClient.users.getUser(session.userId);
+      const role = (user as any)?.privateMetadata?.role;
+      const isSuperAdmin = role === 'superAdmin';
+
+      if (!isSuperAdmin) {
+        // Not authorized → redirect to home
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+    } catch (error) {
+      console.error('Error verifying SuperAdmin:', error);
+      return NextResponse.redirect(new URL('/', req.url));
     }
   }
   

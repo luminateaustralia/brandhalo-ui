@@ -178,7 +178,7 @@ function normalizeBrandData(raw: unknown): BrandProfileForm {
   }
 
   // Competitive landscape
-  const comp = data.competitiveLandscape ?? {};
+  const comp = (data.competitiveLandscape as Record<string, unknown>) ?? {};
   if (!Array.isArray(comp.primaryCompetitors)) {
     comp.primaryCompetitors = [];
   } else {
@@ -215,9 +215,11 @@ function normalizeBrandData(raw: unknown): BrandProfileForm {
   }
 
   // Meta
-  data.version = Number.isInteger(data.version) && data.version > 0 ? data.version : 1;
+  const version = data.version as number | undefined;
+  data.version = Number.isInteger(version) && version !== undefined && version > 0 ? version : 1;
   const validStatuses: BrandStatus[] = ['draft', 'pending_approval', 'approved'];
-  data.status = validStatuses.includes(data.status) ? data.status : 'draft';
+  const status = data.status as string | undefined;
+  data.status = validStatuses.includes(status as BrandStatus) ? status as BrandStatus : 'draft';
 
   return data as BrandProfileForm;
 }

@@ -112,7 +112,6 @@ function isValidUrlString(value: unknown): boolean {
   try {
     // Allow protocol-less domains by prepending https for validation only
     const candidate = value.match(/^https?:\/\//) ? value : `https://${value}`;
-    // eslint-disable-next-line no-new
     new URL(candidate);
     return true;
   } catch {
@@ -120,8 +119,8 @@ function isValidUrlString(value: unknown): boolean {
   }
 }
 
-function normalizeBrandData(raw: any): BrandProfileForm {
-  const data: any = { ...getDefaultBrandProfile(), ...(raw || {}) };
+function normalizeBrandData(raw: unknown): BrandProfileForm {
+  const data: Record<string, unknown> = { ...getDefaultBrandProfile(), ...(raw as Record<string, unknown> || {}) };
 
   // Company info
   if (!isValidUrlString(data.companyInfo?.website)) {
@@ -158,7 +157,7 @@ function normalizeBrandData(raw: any): BrandProfileForm {
   if (!Array.isArray(data.targetAudience)) {
     data.targetAudience = [{ name: '', description: '', keyNeeds: '', demographics: '' }];
   } else {
-    data.targetAudience = data.targetAudience.map((a: any) => {
+    data.targetAudience = data.targetAudience.map((a: unknown) => {
       if (typeof a === 'string') {
         return { name: a, description: '', keyNeeds: '', demographics: '' };
       }
@@ -176,7 +175,7 @@ function normalizeBrandData(raw: any): BrandProfileForm {
   if (!Array.isArray(comp.primaryCompetitors)) {
     comp.primaryCompetitors = [];
   } else {
-    comp.primaryCompetitors = comp.primaryCompetitors.map((c: any) => {
+    comp.primaryCompetitors = comp.primaryCompetitors.map((c: unknown) => {
       if (typeof c === 'string') {
         return { name: c, website: '', positioning: '' };
       }

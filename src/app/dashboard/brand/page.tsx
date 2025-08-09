@@ -120,37 +120,43 @@ function isValidUrlString(value: unknown): boolean {
 }
 
 function normalizeBrandData(raw: unknown): BrandProfileForm {
-  const data: Record<string, unknown> = { ...getDefaultBrandProfile(), ...(raw as Record<string, unknown> || {}) };
+  const data = { ...getDefaultBrandProfile(), ...(raw as Record<string, unknown> || {}) } as Record<string, unknown>;
 
   // Company info
-  if (!isValidUrlString(data.companyInfo?.website)) {
-    if (data?.companyInfo) data.companyInfo.website = '';
+  const companyInfo = data.companyInfo as Record<string, unknown> | undefined;
+  if (companyInfo && !isValidUrlString(companyInfo.website)) {
+    companyInfo.website = '';
   }
 
   // Brand essence
-  if (!Array.isArray(data.brandEssence?.values)) {
-    const v = data.brandEssence?.values;
-    data.brandEssence.values = typeof v === 'string' ? [v] : [''];
+  const brandEssence = data.brandEssence as Record<string, unknown> | undefined;
+  if (brandEssence && !Array.isArray(brandEssence.values)) {
+    const v = brandEssence.values;
+    brandEssence.values = typeof v === 'string' ? [v] : [''];
   }
 
   // Personality
-  if (!Array.isArray(data.brandPersonality?.traits)) {
-    const t = data.brandPersonality?.traits;
-    data.brandPersonality.traits = typeof t === 'string' ? [t] : [''];
+  const brandPersonality = data.brandPersonality as Record<string, unknown> | undefined;
+  if (brandPersonality && !Array.isArray(brandPersonality.traits)) {
+    const t = brandPersonality.traits;
+    brandPersonality.traits = typeof t === 'string' ? [t] : [''];
   }
 
   // Visuals
-  if (!isValidUrlString(data.brandVisuals?.logoURL)) {
-    if (data?.brandVisuals) data.brandVisuals.logoURL = '';
-  }
-  if (!Array.isArray(data.brandVisuals?.primaryColors)) {
-    data.brandVisuals.primaryColors = [{ name: '', hex: '' }];
-  }
-  if (!Array.isArray(data.brandVisuals?.secondaryColors)) {
-    data.brandVisuals.secondaryColors = [];
-  }
-  if (!Array.isArray(data.brandVisuals?.typography)) {
-    data.brandVisuals.typography = [{ name: '', usage: '' }];
+  const brandVisuals = data.brandVisuals as Record<string, unknown> | undefined;
+  if (brandVisuals) {
+    if (!isValidUrlString(brandVisuals.logoURL)) {
+      brandVisuals.logoURL = '';
+    }
+    if (!Array.isArray(brandVisuals.primaryColors)) {
+      brandVisuals.primaryColors = [{ name: '', hex: '' }];
+    }
+    if (!Array.isArray(brandVisuals.secondaryColors)) {
+      brandVisuals.secondaryColors = [];
+    }
+    if (!Array.isArray(brandVisuals.typography)) {
+      brandVisuals.typography = [{ name: '', usage: '' }];
+    }
   }
 
   // Target audience
@@ -161,11 +167,12 @@ function normalizeBrandData(raw: unknown): BrandProfileForm {
       if (typeof a === 'string') {
         return { name: a, description: '', keyNeeds: '', demographics: '' };
       }
+      const audience = a as Record<string, unknown>;
       return {
-        name: a?.name ?? '',
-        description: a?.description ?? '',
-        keyNeeds: a?.keyNeeds ?? '',
-        demographics: a?.demographics ?? ''
+        name: audience?.name ?? '',
+        description: audience?.description ?? '',
+        keyNeeds: audience?.keyNeeds ?? '',
+        demographics: audience?.demographics ?? ''
       };
     });
   }
@@ -179,10 +186,11 @@ function normalizeBrandData(raw: unknown): BrandProfileForm {
       if (typeof c === 'string') {
         return { name: c, website: '', positioning: '' };
       }
+      const competitor = c as Record<string, unknown>;
       return {
-        name: c?.name ?? '',
-        website: isValidUrlString(c?.website) ? c.website : '',
-        positioning: c?.positioning ?? ''
+        name: competitor?.name ?? '',
+        website: isValidUrlString(competitor?.website) ? competitor.website as string : '',
+        positioning: competitor?.positioning ?? ''
       };
     });
   }
@@ -190,17 +198,21 @@ function normalizeBrandData(raw: unknown): BrandProfileForm {
   data.competitiveLandscape = comp;
 
   // Messaging
-  if (!Array.isArray(data.messaging?.keyMessages)) {
-    const km = data.messaging?.keyMessages;
-    data.messaging.keyMessages = typeof km === 'string' ? [km] : [''];
+  const messaging = data.messaging as Record<string, unknown> | undefined;
+  if (messaging && !Array.isArray(messaging.keyMessages)) {
+    const km = messaging.keyMessages;
+    messaging.keyMessages = typeof km === 'string' ? [km] : [''];
   }
 
   // Compliance
-  if (!isValidUrlString(data.compliance?.brandGuidelinesURL)) {
-    if (data?.compliance) data.compliance.brandGuidelinesURL = '';
+  const compliance = data.compliance as Record<string, unknown> | undefined;
+  if (compliance) {
+    if (!isValidUrlString(compliance.brandGuidelinesURL)) {
+      compliance.brandGuidelinesURL = '';
+    }
+    compliance.trademarkStatus = typeof compliance.trademarkStatus === 'string' ? compliance.trademarkStatus : '';
+    compliance.notes = typeof compliance.notes === 'string' ? compliance.notes : '';
   }
-  data.compliance.trademarkStatus = typeof data.compliance?.trademarkStatus === 'string' ? data.compliance.trademarkStatus : '';
-  data.compliance.notes = typeof data.compliance?.notes === 'string' ? data.compliance.notes : '';
 
   // Meta
   data.version = Number.isInteger(data.version) && data.version > 0 ? data.version : 1;

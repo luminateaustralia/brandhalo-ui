@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 
+export const runtime = 'edge';
+
 export async function GET() {
   try {
     const user = await currentUser();
